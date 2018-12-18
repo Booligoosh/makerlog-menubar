@@ -70,6 +70,9 @@
             data.taskComposer.processing = false;
             data.taskComposer.content = '';
             document.querySelector('.content').value = '';
+            data.taskComposer.attachment = undefined;
+            data.taskComposer.attachmentURL = undefined;
+            document.querySelector('.attachment').files = new FileList();
         })
     }
     
