@@ -1,0 +1,117 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
+<link rel="stylesheet" href="style.css">
+
+<div id="app" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.75)), url(${taskComposer.attachmentURL})` : ''">
+    <div class="drag-overlay" v-show="dragover">Drop your image here!</div>
+    <form class="composer" action="javascript:void(0)" v-on:submit="createTask(taskComposer.content, taskComposer.done, taskComposer.in_progress, taskComposer.attachment)">
+        <select class="status" v-on:input="taskComposer.done = $event.target.value == 'done'; taskComposer.in_progress = $event.target.value == 'in_progress'" v-bind:style="taskComposer.done ? '' : 'background: #f39c12'">
+            <option value="done">Done</option>
+            <option value="">To-Do</option>
+            <option value="in_progress">In Progress</option>
+        </select>
+        <input class="content" type="text" v-bind:placeholder="taskComposer.done ? 'Write something you did today.' : (taskComposer.in_progress ? 'Write what you\'re working on.' : 'Write a to-do.')" v-on:input="taskComposer.content = $event.target.value" v-bind:style="
+        `padding-left: calc(${document.querySelector('.status').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.status'))['margin-left']} * 2));
+        padding-right: calc(${document.querySelector('.submit').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.submit'))['margin-right']} * 2))`">
+        <input class="attachment" type="file" v-on:input="taskComposer.attachment = $event.target.files[0]; getBase64(taskComposer.attachment).then(data => taskComposer.attachmentURL = data)">
+        <button class="submit" type="submit">{{taskComposer.processing ? 'Processing...' : (typeof taskComposer.attachment !== 'undefined' ? 'Submit with image!' : 'Submit!')}}</button>
+    </form>
+</div>
+
+<script>
+    require('electron').remote.getGlobal('goNormalSize')();
+    
+    var client_id = 'YBKDIKB3DJbyZdwkFsRCIuJscq4Xy5YNuIyAwqPG';
+    var token = require('electron').remote.getGlobal('token');
+    
+    
+    if(typeof token === 'undefined') {
+        login();
+    } else {
+        setTimeout(login, 36000*100);
+    }
+    
+    var data = {
+        dragover: false,
+        taskComposer: {
+            content: '',
+            done: true,
+            in_progress: false,
+            processing: false,
+            attachment: undefined,
+            attachmentURL: undefined
+        }
+    }
+    
+    var vm = new Vue({
+        el: '#app',
+        data: data
+    });
+    
+    
+    function createTask(content, done, in_progress, attachment) {
+        data.taskComposer.processing = true;
+        
+        var formData = new FormData();
+        formData.append('content',content);
+        formData.append('done',done);
+        formData.append('in_progress',in_progress);
+        if(typeof attachment !== 'undefined') {
+            formData.append('attachment',attachment);
+        }
+        
+        return myFetch('https://api.getmakerlog.com/tasks/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        }).then(r => {
+            console.log(r);
+            data.taskComposer.processing = false;
+            data.taskComposer.content = '';
+            document.querySelector('.content').value = '';
+        })
+    }
+    
+    function dropEvent(e) {
+        document.querySelector('.attachment').files = e.dataTransfer.files;
+    }
+    
+    function login() {
+        document.body.innerHTML = '';
+        document.body.style.background = 'linear-gradient(#000a12 60px, #ecf0f1 60px)';
+        
+        var storeAppHref = require('electron').remote.getGlobal('storeAppHref');
+        storeAppHref(window.location.href);
+        document.querySelector('.content').
+        require('electron').remote.getGlobal('goFullscreen')();
+        
+        window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=tasks:write&response_type=token`;
+    }
+    
+    function getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+    
+    function myFetch(input,init = {}) {
+        return fetch(input,init)
+        .then(r => {
+            if(r.status === 403) {
+                // Credentials timed out
+                login();
+            } else {
+                return r.headers.get('content-type').startsWith('application/json') ? r.json() : r;
+            }
+        }, err => {
+            // No internet connection
+        });
+    }
+    
+    window.addEventListener('DOMContentLoaded', function(){vm.$forceUpdate()})
+    
+</script>
