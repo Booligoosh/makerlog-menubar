@@ -1,12 +1,14 @@
 const electron = require('electron')
 const menubar = require('menubar')
 const Menu = electron.Menu;
+const globalShortcut = electron.globalShortcut;
 
 var mb = menubar({
     height: 16*1.5*3,
     width: 1366,
     alwaysOnTop: true,
-    resizable: false
+    resizable: false,
+    preloadWindow: true
 })
 
 global.appVersion = electron.app.getVersion();
@@ -38,6 +40,7 @@ mb.on('ready', function ready () {
         submenu: [
             { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
             { type: "separator" },
+            { label: "Hide", accelerator: "Esc", click: function() { mb.window.hide(); }},
             { label: "Quit", accelerator: "CmdOrCtrl+Q", click: function() { mb.app.quit(); }}
         ]}, {
         label: "Edit",
@@ -55,5 +58,15 @@ mb.on('ready', function ready () {
 })
 
 mb.on('after-create-window', function ready () {
-  //mb.window.openDevTools();
+    //mb.window.openDevTools();
+    
+    // Global keyboard shortcuts
+    globalShortcut.register('Shift+CmdOrCtrl+M', function () {
+        //console.log('Shift+CmdOrCtrl+M is pressed');
+        if(mb.window.isVisible()) {
+            mb.window.hide();
+        } else {
+            mb.window.show();
+        }
+    })
 })
