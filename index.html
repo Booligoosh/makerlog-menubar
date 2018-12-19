@@ -86,7 +86,6 @@
         
         var storeAppHref = require('electron').remote.getGlobal('storeAppHref');
         storeAppHref(window.location.href);
-        document.querySelector('.content').
         require('electron').remote.getGlobal('goFullscreen')();
         
         window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=tasks:write&response_type=token`;
