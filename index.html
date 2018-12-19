@@ -1,4 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
+<script src="vue.min.js"></script>
 <link rel="stylesheet" href="style.css">
 
 <div id="app" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.75)), url(${taskComposer.attachmentURL})` : ''">
