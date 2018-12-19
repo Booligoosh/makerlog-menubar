@@ -9,6 +9,7 @@ var mb = menubar({
     resizable: false
 })
 
+global.appVersion = electron.app.getVersion();
 global.storeToken = function(token) {
     global.token = token;
 }

@@ -28,6 +28,8 @@
         login();
     } else {
         setTimeout(login, 36000*100);
+        checkForNewUpdate();
+        setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
     }
     
     var data = {
@@ -89,6 +91,18 @@
         require('electron').remote.getGlobal('goFullscreen')();
         
         window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=tasks:write&response_type=token`;
+    }
+    
+    function checkForNewUpdate() {
+        return myFetch('https://api.github.com/repos/Booligoosh/makerlog-menubar/releases/latest')
+        .then(latest => {
+            var currentNum = Number(require('electron').remote.getGlobal('appVersion').replace(/\./g,''));
+            var latestNum = Number(latest.tag_name.replace('v','').replace(/\./g,''));
+            
+            if(latestNum > currentNum) {
+                alert(`Please update to the latest version!\nYou can download it here:\n\nhttps://github.com/Booligoosh/makerlog-menubar/releases/tag/${latest.tag_name}`);
+            }
+        })
     }
     
     function getBase64(file) {
