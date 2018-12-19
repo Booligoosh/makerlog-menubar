@@ -1,7 +1,7 @@
 <script src="vue.min.js"></script>
 <link rel="stylesheet" href="style.css">
 
-<div id="app" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.75)), url(${taskComposer.attachmentURL})` : ''">
+<div id="app" v-bind:class="darkMode ? 'dark-mode' : ''" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(${darkMode?'23,27,33':'255,255,255'},0.75),rgba(${darkMode?'23,27,33':'255,255,255'},0.75)), url(${taskComposer.attachmentURL})` : ''">
     <div class="drag-overlay" v-show="dragover">Drop your image here!</div>
     <form class="composer" action="javascript:void(0)" v-on:submit="createTask(taskComposer.content, taskComposer.done, taskComposer.in_progress, taskComposer.attachment)">
         <select class="status" v-on:input="taskComposer.done = $event.target.value == 'done'; taskComposer.in_progress = $event.target.value == 'in_progress'" v-bind:style="taskComposer.done ? '' : 'background: #f39c12'">
@@ -18,10 +18,13 @@
 </div>
 
 <script>
-    require('electron').remote.getGlobal('goNormalSize')();
+    var electron = require('electron');
+    var ipcRenderer = electron.ipcRenderer;
+    
+    electron.remote.getGlobal('goNormalSize')();
     
     var client_id = 'YBKDIKB3DJbyZdwkFsRCIuJscq4Xy5YNuIyAwqPG';
-    var token = require('electron').remote.getGlobal('token');
+    var token = electron.remote.getGlobal('token');
     
     
     if(typeof token === 'undefined') {
@@ -32,8 +35,13 @@
         setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
     }
     
+    ipcRenderer.on('darkModeChange', (event, arg) => {
+        data.darkMode = electron.remote.getGlobal('darkMode');
+    })
+    
     var data = {
         dragover: false,
+        darkMode: electron.remote.getGlobal('darkMode'),
         taskComposer: {
             content: '',
             done: true,
@@ -86,9 +94,9 @@
         document.body.innerHTML = '';
         document.body.style.background = 'linear-gradient(#000a12 60px, #ecf0f1 60px)';
         
-        var storeAppHref = require('electron').remote.getGlobal('storeAppHref');
+        var storeAppHref = electron.remote.getGlobal('storeAppHref');
         storeAppHref(window.location.href);
-        require('electron').remote.getGlobal('goFullscreen')();
+        electron.remote.getGlobal('goFullscreen')();
         
         window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=tasks:write&response_type=token`;
     }
@@ -96,7 +104,7 @@
     function checkForNewUpdate() {
         return myFetch('https://api.github.com/repos/Booligoosh/makerlog-menubar/releases/latest')
         .then(latest => {
-            var currentNum = Number(require('electron').remote.getGlobal('appVersion').replace(/\./g,''));
+            var currentNum = Number(electron.remote.getGlobal('appVersion').replace(/\./g,''));
             var latestNum = Number(latest.tag_name.replace('v','').replace(/\./g,''));
             
             if(latestNum > currentNum) {

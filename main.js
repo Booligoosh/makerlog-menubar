@@ -2,6 +2,8 @@ const electron = require('electron')
 const menubar = require('menubar')
 const Menu = electron.Menu;
 const globalShortcut = electron.globalShortcut;
+const systemPreferences = electron.systemPreferences;
+const ipcMain = electron.ipcMain;
 
 var mb = menubar({
     height: 16*1.5*3,
@@ -12,6 +14,16 @@ var mb = menubar({
 })
 
 global.appVersion = electron.app.getVersion();
+
+global.darkMode = (systemPreferences.isDarkMode() === true);
+systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
+
+function darkModeChange() {
+    console.log('CHANGE!');
+    global.darkMode = (systemPreferences.isDarkMode() === true);
+    mb.window.webContents.send('darkModeChange', '');
+}
+
 global.storeToken = function(token) {
     global.token = token;
 }
