@@ -9,9 +9,14 @@
             <option value="">To-Do</option>
             <option value="in_progress">In Progress</option>
         </select>
-        <input class="content" type="text" v-bind:placeholder="taskComposer.done ? 'Write something you did today.' : (taskComposer.in_progress ? 'Write what you\'re working on.' : 'Write a to-do.')" v-on:input="taskComposer.content = $event.target.value" v-bind:style="
+        <input class="content" type="text" v-bind:placeholder="taskComposer.done ? 'Write something you did today.' : (taskComposer.in_progress ? 'Write what you\'re working on.' : 'Write a to-do.')" v-on:input="taskComposer.content = $event.target.value; autofillHashtag(); syncShadowContentScroll()" v-on:keydown="if($event.key == 'ArrowRight'){$event.target.value = taskComposer.content_autocompleted; taskComposer.content = taskComposer.content_autocompleted}; syncShadowContentScroll()" v-on:keyup="syncShadowContentScroll()" v-on:mousewheel="syncShadowContentScroll()" v-on:scroll="syncShadowContentScroll()" v-on:blur="syncShadowContentScroll()" v-on:mousemove="syncShadowContentScroll()" v-bind:style="
         `padding-left: calc(${document.querySelector('.status').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.status'))['margin-left']} * 2));
         padding-right: calc(${document.querySelector('.submit').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.submit'))['margin-right']} * 2))`">
+        
+        <input class="shadow-content" type="text" readonly v-on:blur="scrollLeft = $event.target.scrollLeft; setTimeout(function(){$event.target.scrollLeft = scrollLeft}, 0)" v-bind:value="taskComposer.content_autocompleted" v-bind:style="
+        `padding-left: calc(${document.querySelector('.status').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.status'))['margin-left']} * 2));
+        padding-right: calc(${document.querySelector('.submit').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.submit'))['margin-right']} * 2))`">
+        
         <input class="attachment" type="file" v-on:input="taskComposer.attachment = $event.target.files[0]; getBase64(taskComposer.attachment).then(data => taskComposer.attachmentURL = data)">
         <button class="submit" type="submit">{{taskComposer.processing ? 'Processing...' : (typeof taskComposer.attachment !== 'undefined' ? 'Submit with image!' : 'Submit!')}}</button>
     </form>
@@ -33,6 +38,7 @@
         setTimeout(login, 36000*100);
         checkForNewUpdate();
         setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
+        fetchHashtags();
     }
     
     ipcRenderer.on('darkModeChange', (event, arg) => {
@@ -44,18 +50,24 @@
         darkMode: electron.remote.getGlobal('darkMode'),
         taskComposer: {
             content: '',
+            content_autocompleted: '',
             done: true,
             in_progress: false,
             processing: false,
             attachment: undefined,
             attachmentURL: undefined
-        }
+        },
+        hashtags: []
     }
     
     var vm = new Vue({
         el: '#app',
         data: data
     });
+    
+    function syncShadowContentScroll() {
+        document.querySelector('.shadow-content').scrollLeft = document.querySelector('.content').scrollLeft;
+    }
     
     
     function createTask(content, done, in_progress, attachment) {
@@ -80,10 +92,42 @@
             data.taskComposer.processing = false;
             data.taskComposer.content = '';
             document.querySelector('.content').value = '';
+            data.taskComposer.content_autocompleted = '';
             data.taskComposer.attachment = undefined;
             data.taskComposer.attachmentURL = undefined;
             document.querySelector('.attachment').files = new FileList();
         })
+    }
+    
+    function fetchHashtags() {
+        return myFetch('https://api.getmakerlog.com/me', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(r => myFetch(`https://api.getmakerlog.com/users/${r.id}/stats`))
+        .then(r => {
+            data.hashtags = r.tasks_per_project.labels.filter(label => label != 'No project').sort((a,b) => r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(b)] - r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(a)]);
+        })
+    }
+    
+    function autofillHashtag() {
+        var fullTextWithSuggestion = data.taskComposer.content;
+        if((/#./).test(data.taskComposer.content)) {
+            var split = data.taskComposer.content.split('#');
+            var hashtagText = split[split.length - 1];
+            //console.log(hashtagText);
+            var possibleHashtags = data.hashtags.filter(hashtag => hashtag.startsWith(hashtagText));
+            //console.log(possibleHashtags);
+            var bestSuggestion = possibleHashtags[0]; // Sorted by number of times used
+            //console.log(bestSuggestion);
+            fullTextWithSuggestion = split;
+            fullTextWithSuggestion[split.length - 1] = bestSuggestion;
+            fullTextWithSuggestion = fullTextWithSuggestion.join('#');
+        }
+        
+        //console.log(fullTextWithSuggestion);
+        data.taskComposer.content_autocompleted = fullTextWithSuggestion;
     }
     
     function dropEvent(e) {
@@ -98,7 +142,7 @@
         storeAppHref(window.location.href);
         electron.remote.getGlobal('goFullscreen')();
         
-        window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=tasks:write&response_type=token`;
+        window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=token`;
     }
     
     function checkForNewUpdate() {

@@ -31,13 +31,14 @@ body {
 
 .composer > * {
     font-size: inherit;
+    z-index: 2;
 }
 
 .composer > *:focus {
     outline: none;
 }
 
-.composer .content {
+.composer .content, .composer .shadow-content {
     position: absolute;
     left: 0;
     right: 0;
@@ -51,7 +52,16 @@ body {
     border: none;
 }
 
-#app.dark-mode .composer .content {
+.composer .content {
+    z-index: 1;
+}
+
+.composer .shadow-content {
+    opacity: .5;
+    z-index: 0;
+}
+
+#app.dark-mode .composer .content, #app.dark-mode .composer .shadow-content {
     color: white;
 }
 
@@ -72,7 +82,6 @@ body {
     position: absolute;
     top: 0;
     bottom: 0;
-    z-index: 1;
     margin: 1rem; /* --composer-padding */
     background: #27ae60;
     color: white;
