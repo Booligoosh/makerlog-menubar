@@ -45,6 +45,10 @@
         data.darkMode = electron.remote.getGlobal('darkMode');
     })
     
+    ipcRenderer.on('focusContent', (event, arg) => {
+        document.querySelector('.content').focus();
+    })
+    
     var data = {
         dragover: false,
         darkMode: electron.remote.getGlobal('darkMode'),

@@ -78,6 +78,7 @@ mb.on('after-create-window', function ready () {
         if(mb.window.isVisible()) {
             mb.window.hide();
         } else {
+            mb.window.webContents.send('focusContent', '');
             mb.window.show();
         }
     })
