@@ -4,6 +4,7 @@ const Menu = electron.Menu;
 const globalShortcut = electron.globalShortcut;
 const systemPreferences = electron.systemPreferences;
 const ipcMain = electron.ipcMain;
+const session = electron.session;
 
 var mb = menubar({
     height: 16*1.5*3,
@@ -46,6 +47,16 @@ global.goNormalSize = function() {
 mb.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
+
+    // Security measure from https://electronjs.org/docs/tutorial/security#6-define-a-content-security-policy
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': ["script-src 'self' https://makerlog-menubar-app.netlify.com/ https://getmakerlog.com https://api.getmakerlog.com https://api.github.com"]
+        }
+      })
+    })
 
     // Allow basic keyboard shortcuts – code from https://pracucci.com/atom-electron-enable-copy-and-paste.html
     var template = [{
