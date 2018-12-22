@@ -79,7 +79,7 @@ function createTask(content, done, in_progress, attachment) {
 }
 
 function fetchHashtags() {
-    return myFetch('https://api.getmakerlog.com/me', {
+    return myFetch('https://api.getmakerlog.com/me/', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`
