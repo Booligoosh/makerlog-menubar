@@ -10,7 +10,8 @@ var mb = menubar({
     width: 1366,
     alwaysOnTop: true,
     resizable: false,
-    preloadWindow: true
+    preloadWindow: true,
+    index: 'https://makerlog-menubar-app.netlify.com'
 })
 
 global.appVersion = electron.app.getVersion();
