@@ -84,7 +84,7 @@ function fetchHashtags() {
         headers: {
             'Authorization': `Bearer ${token}`
         }
-    }).then(r => myFetch(`https://api.getmakerlog.com/users/${r.id}/stats`))
+    }).then(r => myFetch(`https://api.getmakerlog.com/users/${r.id}/stats/`))
     .then(r => {
         data.hashtags = r.tasks_per_project.labels.filter(label => label != 'No project').sort((a,b) => r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(b)] - r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(a)]);
     })
