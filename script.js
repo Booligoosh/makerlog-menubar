@@ -3,14 +3,21 @@ var ipcRenderer = electron.ipcRenderer;
 
 electron.remote.getGlobal('goNormalSize')();
 
-var client_id = 'YBKDIKB3DJbyZdwkFsRCIuJscq4Xy5YNuIyAwqPG';
-var token = electron.remote.getGlobal('token');
+var client_id = '7JomVQ7FyglKL2PvIxCVS1rIo9kMQKcv78lk4vwM';
+var tokenStore = electron.remote.getGlobal('token');
+var token;
+var refreshToken;
 
-
-if(typeof token === 'undefined') {
+if(typeof tokenStore === 'undefined') {
     login();
 } else {
-    setTimeout(login, 36000*100);
+    tokenStore = tokenStore.split('|');
+    token = tokenStore[0];
+    if(tokenStore.length >= 2) {
+        refreshToken = tokenStore[1];
+    }
+    
+    setTimeout(refreshMakerlogToken, 59*60*1000); // Every 59 minutes
     checkForNewUpdate();
     setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
     fetchHashtags();
@@ -120,7 +127,21 @@ function login() {
     storeAppHref(window.location.href);
     electron.remote.getGlobal('goFullscreen')();
 
-    window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=token`;
+    window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=code`;
+}
+
+function refreshMakerlogToken() {
+    if(typeof refreshToken !== 'undefined' && refreshToken.length > 0) {
+        return fetch('https://makerlog-menubar-cloud-functions.netlify.com/.netlify/functions/refreshMakerlogToken', {
+            method: 'POST',
+            body: JSON.stringify({refresh_token: refreshToken})
+        }).then(r => r.json()).then(r => {
+            token = r.access_token;
+            electron.remote.getGlobal('storeToken')(`${token}|${refreshToken}`)
+        })
+    } else {
+        login(); // Can't refresh so log in again
+    }
 }
 
 function checkForNewUpdate() {
@@ -149,7 +170,7 @@ function myFetch(input,init = {}) {
     .then(r => {
         if(r.status === 403) {
             // Credentials timed out
-            login();
+            refreshMakerlogToken();
         } else {
             return r.headers.get('content-type').startsWith('application/json') ? r.json() : r;
         }
