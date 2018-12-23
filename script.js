@@ -141,7 +141,7 @@ function refreshMakerlogToken(notify = false) {
             if(notify) {
                 alert('Failed. Please try that again!')
             }
-        })
+        }, err => alert('Failed. Please try that again!')).err(r => alert('Failed. Please try that again!'))
     } else {
         login(); // Can't refresh so log in again
     }
