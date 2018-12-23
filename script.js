@@ -142,6 +142,9 @@ function refreshMakerlogToken(notify = false) {
             if(notify) {
                 alert('Failed. Please try that again!')
             }
+            if(data.taskComposer.content.length == 0) {
+                window.location.reload();
+            }
         }, err => alert('Failed. Please try that again!'))
         .catch(r => alert('Failed. Please try that again!'))
     } else {
