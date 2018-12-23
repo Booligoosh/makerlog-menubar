@@ -137,6 +137,7 @@ function refreshMakerlogToken(notify = false) {
             body: JSON.stringify({refresh_token: refreshToken})
         }).then(r => r.json()).then(r => {
             token = r.access_token;
+            refreshToken = r.refresh_token;
             electron.remote.getGlobal('storeToken')(`${token}|${refreshToken}`);
             if(notify) {
                 alert('Failed. Please try that again!')
