@@ -130,14 +130,17 @@ function login() {
     window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=code`;
 }
 
-function refreshMakerlogToken() {
+function refreshMakerlogToken(notify = false) {
     if(typeof refreshToken !== 'undefined' && refreshToken.length > 0) {
         return fetch('https://makerlog-menubar-cloud-functions.netlify.com/.netlify/functions/refreshMakerlogToken', {
             method: 'POST',
             body: JSON.stringify({refresh_token: refreshToken})
         }).then(r => r.json()).then(r => {
             token = r.access_token;
-            electron.remote.getGlobal('storeToken')(`${token}|${refreshToken}`)
+            electron.remote.getGlobal('storeToken')(`${token}|${refreshToken}`);
+            if(notify) {
+                alert('Failed. Please try that again!')
+            }
         })
     } else {
         login(); // Can't refresh so log in again
@@ -170,7 +173,7 @@ function myFetch(input,init = {}) {
     .then(r => {
         if(r.status === 403) {
             // Credentials timed out
-            refreshMakerlogToken();
+            refreshMakerlogToken(true);
         } else {
             return r.headers.get('content-type').startsWith('application/json') ? r.json() : r;
         }
