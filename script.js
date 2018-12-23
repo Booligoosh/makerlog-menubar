@@ -17,7 +17,7 @@ if(typeof tokenStore === 'undefined') {
         refreshToken = tokenStore[1];
     }
     
-    setTimeout(refreshMakerlogToken, 59*60*1000); // Every 59 minutes
+    setInterval(refreshMakerlogToken, 59*60*1000); // Every 59 minutes
     checkForNewUpdate();
     setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
     fetchHashtags();
