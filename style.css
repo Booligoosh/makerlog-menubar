@@ -104,3 +104,21 @@ body {
     z-index: 99;
     pointer-events: none;
 }
+
+.progress-bar-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1rem;
+    z-index: 3;
+}
+
+.progress-bar {
+    height: 5px;
+    cursor: help;
+    background: linear-gradient(90deg, #f39c12, #f31212);
+    width: 0%;
+    border-top-right-radius: 2.5px;
+    border-bottom-right-radius: 2.5px;
+}

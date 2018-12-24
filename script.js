@@ -43,18 +43,50 @@ var data = {
         attachment: undefined,
         attachmentURL: undefined
     },
-    hashtags: []
+    hashtags: [],
+    progressBar: {
+        show: true,
+        showTooltip: false,
+        percentage: calculateDayProgress()
+    }
+}
+
+if(localStorage.hideProgressBar === true || localStorage.hideProgressBar === 'true') {
+    data.progressBar.show = false;
+} else {
+    localStorage.hideProgressBar = !data.progressBar.show;
 }
 
 var vm = new Vue({
     el: '#app',
     data: data
 });
+    
+setInterval(updateDayProgress, 60*1000); // Every 60 seconds, because that's how long it takes for the percentage to change anyway: https://i.imgur.com/cP67s2L.png
 
 function syncShadowContentScroll() {
     document.querySelector('.shadow-content').scrollLeft = document.querySelector('.content').scrollLeft;
 }
 
+function updateDayProgress() {
+    data.progressBar.percentage = calculateDayProgress();
+    console.log(data.progressBar.percentage);
+    vm.$forceUpdate();
+}
+
+function calculateDayProgress() {
+    return (((new Date().getHours() * 60) + new Date().getMinutes()) / 1440) * 100
+    // Calculation identical to Sergio's: https://gitlab.com/makerlog/web/blob/173ca1fe22dad7672d60be51e948b19088b843bb/src/pages/StreamPage/components/DayProgressBar.js#L40
+}
+
+window.onkeydown = function(e){
+    //console.log(e);
+    if(e.keyCode == 80 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+P
+        console.log('Toggling progress bar!');
+        data.progressBar.show = !data.progressBar.show;
+        localStorage.hideProgressBar = !data.progressBar.show;
+    }
+}
 
 function createTask(content, done, in_progress, attachment) {
     data.taskComposer.processing = true;

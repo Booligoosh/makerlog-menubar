@@ -2,14 +2,18 @@
 <link rel="stylesheet" href="style.css">
 
 <div id="app" v-bind:class="darkMode ? 'dark-mode' : ''" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(${darkMode?'23,27,33':'255,255,255'},0.75),rgba(${darkMode?'23,27,33':'255,255,255'},0.75)), url(${taskComposer.attachmentURL})` : ''">
+   
     <div class="drag-overlay" v-show="dragover">Drop your image here!</div>
+    
+    <div class="progress-bar-wrapper" v-on:mouseover="progressBar.showTooltip = true" v-on:mouseleave="progressBar.showTooltip = false" v-bind:style="progressBar.show ? '' : 'height: 10px'"><div class="progress-bar" v-show="progressBar.show" v-bind:style="`width: ${progressBar.percentage}%`"></div></div>
+    
     <form class="composer" action="javascript:void(0)" v-on:submit="createTask(taskComposer.content, taskComposer.done, taskComposer.in_progress, taskComposer.attachment)">
         <select class="status" v-on:input="taskComposer.done = $event.target.value == 'done'; taskComposer.in_progress = $event.target.value == 'in_progress'" v-bind:style="taskComposer.done ? '' : 'background: #f39c12'">
             <option value="done">Done</option>
             <option value="">To-Do</option>
             <option value="in_progress">In Progress</option>
         </select>
-        <input class="content" type="text" v-bind:placeholder="taskComposer.done ? 'Write something you did today.' : (taskComposer.in_progress ? 'Write what you\'re working on.' : 'Write a to-do.')" v-on:input="taskComposer.content = $event.target.value; autofillHashtag(); syncShadowContentScroll()" v-on:keydown="if($event.key == 'ArrowRight'){$event.target.value = taskComposer.content_autocompleted; taskComposer.content = taskComposer.content_autocompleted}; syncShadowContentScroll()" v-on:keyup="syncShadowContentScroll()" v-on:mousewheel="syncShadowContentScroll()" v-on:scroll="syncShadowContentScroll()" v-on:blur="syncShadowContentScroll()" v-on:mousemove="syncShadowContentScroll()" v-bind:style="
+        <input class="content" type="text" v-bind:placeholder="progressBar.showTooltip ? 'The bar at the top shows the percentage through the day. Use ⌘P to toggle it.' : (taskComposer.done ? 'Write something you did today.' : (taskComposer.in_progress ? 'Write what you\'re working on.' : 'Write a to-do.'))" v-on:input="taskComposer.content = $event.target.value; autofillHashtag(); syncShadowContentScroll()" v-on:keydown="if($event.key == 'ArrowRight'){$event.target.value = taskComposer.content_autocompleted; taskComposer.content = taskComposer.content_autocompleted}; syncShadowContentScroll()" v-on:keyup="syncShadowContentScroll()" v-on:mousewheel="syncShadowContentScroll()" v-on:scroll="syncShadowContentScroll()" v-on:blur="syncShadowContentScroll()" v-on:mousemove="syncShadowContentScroll()" v-bind:style="
         `padding-left: calc(${document.querySelector('.status').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.status'))['margin-left']} * 2));
         padding-right: calc(${document.querySelector('.submit').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.submit'))['margin-right']} * 2))`">
         
