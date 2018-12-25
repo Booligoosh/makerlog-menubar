@@ -6,11 +6,13 @@ const systemPreferences = electron.systemPreferences;
 const ipcMain = electron.ipcMain;
 const session = electron.session;
 
+global.fontSize = 16*1.5;
+
 var mb = menubar({
-    height: 16*1.5*3,
+    height: global.fontSize*3,
     width: 1366,
     alwaysOnTop: true,
-    resizable: false,
+    movable: false,
     preloadWindow: true,
     skipTaskbar: false,
     index: 'https://makerlog-menubar-app.netlify.com'
@@ -38,11 +40,15 @@ global.redirectToApp = function() {
 }
 global.goFullscreen = function() {
     const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+    mb.window.setMinimumSize(width, height);
+    mb.window.setMaximumSize(width, height);
     mb.window.setSize(width, height);
 }
 global.goNormalSize = function() {
     const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
-    mb.window.setSize(width, 16*1.5*3);
+    mb.window.setMinimumSize(global.fontSize*28, global.fontSize*3);
+    mb.window.setMaximumSize(99999, global.fontSize*3);
+    mb.window.setSize(width, global.fontSize*3);
 }
 
 mb.on('ready', function ready () {
@@ -85,6 +91,14 @@ mb.on('ready', function ready () {
 
 mb.on('after-create-window', function ready () {
     //mb.window.openDevTools();
+    
+    mb.window.on('resize', function (event) {
+        var screenDimensions = electron.screen.getPrimaryDisplay().workAreaSize;
+        var [width, height] = mb.window.getSize();
+        var [x, y] = mb.window.getPosition();
+        mb.window.setPosition(Math.round((screenDimensions.width - width) / 2), y);
+        // Center window when resizing horizontally
+    });
     
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {
