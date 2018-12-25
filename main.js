@@ -12,6 +12,7 @@ var mb = menubar({
     alwaysOnTop: true,
     resizable: false,
     preloadWindow: true,
+    skipTaskbar: false,
     index: 'https://makerlog-menubar-app.netlify.com'
 })
 
