@@ -83,6 +83,19 @@ function calculateDayProgress() {
 window.onkeydown = function(e){
     //console.log(e);
     
+    if(e.keyCode == 68 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+D
+        var dropdown = document.querySelector('.status');
+        var options = Array.from(dropdown.options).map(o => o.getAttribute('value'));
+        var newIndex = options.indexOf(dropdown.value) + 1;
+        if(newIndex >= options.length) {
+            newIndex = 0;
+        }
+        dropdown.value = options[newIndex];
+        
+        // From v-on:input attribute
+        data.taskComposer.done = dropdown.value == 'done';
+        data.taskComposer.in_progress = dropdown.value == 'in_progress'
+    }
     if(e.keyCode == 80 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+P
         console.log('Toggling progress bar!');
         data.progressBar.show = !data.progressBar.show;
