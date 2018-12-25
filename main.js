@@ -45,10 +45,15 @@ global.goFullscreen = function() {
     mb.window.setSize(width, height);
 }
 global.goNormalSize = function() {
-    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+    //const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
     mb.window.setMinimumSize(global.fontSize*28, global.fontSize*3);
     mb.window.setMaximumSize(99999, global.fontSize*3);
+    var [width, height] = mb.window.getSize();
     mb.window.setSize(width, global.fontSize*3);
+}
+global.setFontSize = function(fontSize) {
+    global.fontSize = fontSize*1.5;
+    global.goNormalSize();
 }
 
 mb.on('ready', function ready () {

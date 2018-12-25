@@ -115,10 +115,10 @@ body {
 }
 
 .progress-bar {
-    height: 5px;
+    height: 0.3125em; /* 5/16 */
     cursor: help;
     background: linear-gradient(90deg, #f39c12, #f31212);
     width: 0%;
-    border-top-right-radius: 2.5px;
-    border-bottom-right-radius: 2.5px;
+    border-top-right-radius: 0.15625em; /* 2.5/16 */
+    border-bottom-right-radius: 0.15625em; /* 2.5/16 */
 }

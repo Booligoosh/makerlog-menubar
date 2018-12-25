@@ -1,6 +1,7 @@
 var electron = require('electron');
 var ipcRenderer = electron.ipcRenderer;
 
+document.querySelector('html').style.fontSize = electron.remote.getGlobal('fontSize')/1.5;
 electron.remote.getGlobal('goNormalSize')();
 
 var client_id = '7JomVQ7FyglKL2PvIxCVS1rIo9kMQKcv78lk4vwM';
@@ -81,6 +82,7 @@ function calculateDayProgress() {
 
 window.onkeydown = function(e){
     //console.log(e);
+    
     if(e.keyCode == 80 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+P
         console.log('Toggling progress bar!');
         data.progressBar.show = !data.progressBar.show;
@@ -89,6 +91,31 @@ window.onkeydown = function(e){
     if(e.keyCode == 82 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+R
         console.log('Reloading!');
         window.location.reload();
+    }
+    
+    var zoomStepSize = 2;
+    var setFontSize = electron.remote.getGlobal('setFontSize');
+    
+    if(e.keyCode == 187 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+=
+        console.log('Zooming in!');
+        var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) + zoomStepSize;
+        document.querySelector('html').style.fontSize = newFontSize;
+        setFontSize(newFontSize);
+        vm.$forceUpdate();
+    }
+    if(e.keyCode == 189 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+-
+        console.log('Zooming out!');
+        var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) - zoomStepSize;
+        document.querySelector('html').style.fontSize = newFontSize;
+        setFontSize(newFontSize);
+        vm.$forceUpdate();
+    }
+    if(e.keyCode == 48 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+0
+        console.log('Resetting zoom!');
+        var newFontSize = 16;
+        document.querySelector('html').style.fontSize = newFontSize;
+        setFontSize(newFontSize);
+        vm.$forceUpdate();
     }
 }
 
