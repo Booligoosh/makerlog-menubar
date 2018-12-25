@@ -109,6 +109,10 @@ window.addEventListener('paste', function(e){
     }
 });
 
+function dropEvent(e) {
+    setAttachment(e.dataTransfer.files[0]);
+}
+
 function setAttachment(file) {
     data.taskComposer.attachment = file;
     getBase64(data.taskComposer.attachment)
@@ -173,10 +177,6 @@ function autofillHashtag() {
 
     //console.log(fullTextWithSuggestion);
     data.taskComposer.content_autocompleted = fullTextWithSuggestion;
-}
-
-function dropEvent(e) {
-    document.querySelector('.attachment').files = e.dataTransfer.files;
 }
 
 function login() {
