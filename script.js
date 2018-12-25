@@ -86,6 +86,10 @@ window.onkeydown = function(e){
         data.progressBar.show = !data.progressBar.show;
         localStorage.hideProgressBar = !data.progressBar.show;
     }
+    if(e.keyCode == 82 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+R
+        console.log('Reloading!');
+        window.location.reload();
+    }
 }
 
 window.addEventListener('paste', function(e){
