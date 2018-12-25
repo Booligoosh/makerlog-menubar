@@ -276,8 +276,10 @@ function myFetch(input,init = {}) {
     return fetch(input,init)
     .then(r => {
         if(r.status === 403) {
-            // Credentials timed out
-            refreshMakerlogToken(true);
+            if(new URL(r.url).host.includes('getmakerlog')) { // NOT SECURE for validating but fine here
+                // Makerlog credentials timed out
+                refreshMakerlogToken(true);
+            }
         } else {
             return r.headers.get('content-type').startsWith('application/json') ? r.json() : r;
         }
