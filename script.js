@@ -88,6 +88,29 @@ window.onkeydown = function(e){
     }
 }
 
+window.addEventListener('paste', function(e){
+    //console.log(e);
+    
+    var items = e.clipboardData.items;
+    
+    if (items) {
+        // Loop through all items, looking for any kind of image
+        for (var i = 0; i < items.length; i++) {
+            console.log(items[i]);
+            if (items[i].kind == 'file') {
+                e.preventDefault();
+                setAttachment(items[i].getAsFile());
+            }
+        }
+    }
+});
+
+function setAttachment(file) {
+    data.taskComposer.attachment = file;
+    getBase64(data.taskComposer.attachment)
+        .then(result => data.taskComposer.attachmentURL = result)
+}
+
 function createTask(content, done, in_progress, attachment) {
     data.taskComposer.processing = true;
 

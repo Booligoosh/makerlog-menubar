@@ -21,7 +21,7 @@
         `padding-left: calc(${document.querySelector('.status').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.status'))['margin-left']} * 2));
         padding-right: calc(${document.querySelector('.submit').getBoundingClientRect().width}px + (${getComputedStyle(document.querySelector('.submit'))['margin-right']} * 2))`">
         
-        <input class="attachment" type="file" v-on:input="taskComposer.attachment = $event.target.files[0]; getBase64(taskComposer.attachment).then(data => taskComposer.attachmentURL = data)">
+        <input class="attachment" type="file" v-on:input="setAttachment($event.target.files[0])">
         <button class="submit" type="submit">{{taskComposer.processing ? 'Processing...' : (typeof taskComposer.attachment !== 'undefined' ? 'Submit with image!' : 'Submit!')}}</button>
     </form>
 </div>
