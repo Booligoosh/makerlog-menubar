@@ -61,14 +61,13 @@ global.setFontSize = function(fontSize) {
 mb.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
-    //
-
+    
     iconPath = electron.app.getAppPath() + "/Icon.png";
     tray = new electron.Tray(iconPath);
     tray.setToolTip('Makerlog Menubar');
     tray.setHighlightMode('always');
     mb.tray = tray;
-
+    
     // Security measure from https://electronjs.org/docs/tutorial/security#6-define-a-content-security-policy
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       callback({
@@ -78,7 +77,7 @@ mb.on('ready', function ready () {
         }
       })
     })
-
+    
     // Allow basic keyboard shortcuts – code from https://pracucci.com/atom-electron-enable-copy-and-paste.html
     var template = [{
         label: "Application",
@@ -105,7 +104,7 @@ mb.on('ready', function ready () {
 
 mb.on('after-create-window', function ready () {
     //mb.window.openDevTools();
-
+    
     mb.window.on('resize', function (event) {
         var screenDimensions = electron.screen.getPrimaryDisplay().workAreaSize;
         var [width, height] = mb.window.getSize();
@@ -113,7 +112,7 @@ mb.on('after-create-window', function ready () {
         mb.window.setPosition(Math.round((screenDimensions.width - width) / 2), y);
         // Center window when resizing horizontally
     });
-
+    
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {
         //console.log('Shift+CmdOrCtrl+M is pressed');
