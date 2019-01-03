@@ -20,8 +20,10 @@ var mb = menubar({
 
 global.appVersion = electron.app.getVersion();
 
-global.darkMode = (systemPreferences.isDarkMode() === true);
-systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
+if (process.platform == "darwin") {
+    global.darkMode = (systemPreferences.isDarkMode() === true);
+    systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
+}
 
 function darkModeChange() {
     console.log('CHANGE!');
@@ -39,13 +41,14 @@ global.redirectToApp = function() {
     mb.window.loadURL(global.appHref);
 }
 global.goFullscreen = function() {
-    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
-    mb.window.setMinimumSize(width, height);
-    mb.window.setMaximumSize(width, height);
-    mb.window.setSize(width, height);
+    mb.window.setFullScreen(true);
+    mb.window.setMinimumSize(480, 640);
+    mb.window.setMaximumSize(99999, 640);
+    var [width, height] = mb.window.getSize();
+    mb.window.setSize(width, 640);
 }
 global.goNormalSize = function() {
-    //const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+    mb.window.setFullScreen(false);
     mb.window.setMinimumSize(global.fontSize*28, global.fontSize*3);
     mb.window.setMaximumSize(99999, global.fontSize*3);
     var [width, height] = mb.window.getSize();
