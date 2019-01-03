@@ -20,6 +20,7 @@ var mb = menubar({
 
 global.appVersion = electron.app.getVersion();
 
+
 if (process.platform == "darwin") {
     global.darkMode = (systemPreferences.isDarkMode() === true);
     systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
@@ -60,7 +61,13 @@ global.setFontSize = function(fontSize) {
 mb.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
-
+    
+    iconPath = electron.app.getAppPath() + "/Icon.png";
+    tray = new electron.Tray(iconPath);
+    tray.setToolTip('Makerlog Menubar');
+    tray.setHighlightMode('always');
+    mb.tray = tray;
+    
     // Security measure from https://electronjs.org/docs/tutorial/security#6-define-a-content-security-policy
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       callback({
@@ -70,7 +77,7 @@ mb.on('ready', function ready () {
         }
       })
     })
-
+    
     // Allow basic keyboard shortcuts – code from https://pracucci.com/atom-electron-enable-copy-and-paste.html
     var template = [{
         label: "Application",

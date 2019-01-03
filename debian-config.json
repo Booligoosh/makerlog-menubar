@@ -1,0 +1,14 @@
+{
+  "productName": "Makerlog Menubar",
+  "src": "dist/makerlog-menubar-linux-x64",
+  "dest": "dist/installers/",
+  "arch": "amd64",
+  "icon": "Icon.svg",
+  "categories": [
+    "Utility"
+  ],
+  "lintianOverrides": [
+    "changelog-file-missing-in-native-package"
+  ],
+  "bin": "Makerlog Menubar"
+}
