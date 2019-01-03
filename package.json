@@ -1,18 +1,24 @@
 {
-  "name": "makerlog-menubar",
-  "version": "1.0.0",
-  "description": "A menubar app for Makerlog",
-  "dependencies": {
-    "electron": "^3.0.13",
-    "menubar": "*"
-  },
-  "devDependencies": {
-    "electron-packager": "^13.0.1",
-    "electron-prebuilt": "^0.36.0"
-  },
-  "main": "main.js",
-  "scripts": {
-    "build": "electron-packager . 'Makerlog Menubar' --platform=darwin --arch=x64 --icon=Icon.icns",
-    "start": "electron ."
-  }
+    "name": "makerlog-menubar",
+    "version": "1.0.0",
+    "description": "A menubar app for Makerlog",
+    "author": {
+        "name": "Ethan",
+        "email": "hi@ethan.link"
+    },
+    "dependencies": {
+        "menubar": "*"
+    },
+    "devDependencies": {
+        "electron": "^4.0.0",
+        "electron-installer-debian": "^1.0.1",
+        "electron-packager": "^13.0.1"
+    },
+    "main": "main.js",
+    "scripts": {
+        "build": "electron-packager . 'Makerlog Menubar' --platform=darwin --arch=x64 --icon=Icon.icns",
+        "build-linux": "electron-packager . makerlog-menubar --platform=linux --arch=x64 --icon=Icon.svg --out dist/",
+        "build-linux-deb": "electron-installer-debian --config debian-config.json",
+        "start": "electron ."
+    }
 }
