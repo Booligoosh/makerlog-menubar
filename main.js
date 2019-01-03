@@ -42,14 +42,12 @@ global.redirectToApp = function() {
     mb.window.loadURL(global.appHref);
 }
 global.goFullscreen = function() {
-    mb.window.setFullScreen(true);
     mb.window.setMinimumSize(480, 640);
     mb.window.setMaximumSize(99999, 640);
     var [width, height] = mb.window.getSize();
     mb.window.setSize(width, 640);
 }
 global.goNormalSize = function() {
-    mb.window.setFullScreen(false);
     mb.window.setMinimumSize(global.fontSize*28, global.fontSize*3);
     mb.window.setMaximumSize(99999, global.fontSize*3);
     var [width, height] = mb.window.getSize();
