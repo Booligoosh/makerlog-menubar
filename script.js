@@ -101,6 +101,9 @@ window.onkeydown = function(e){
         data.progressBar.show = !data.progressBar.show;
         localStorage.hideProgressBar = !data.progressBar.show;
     }
+    if((e.keyCode == 75 || e.keyCode == 191) && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+K or CtrlOrCommand+/
+        electron.shell.openExternal('https://www.notion.so/aae9fb064f234403b497707ca037b0ba');
+    }
     if(e.keyCode == 82 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+R
         console.log('Reloading!');
         window.location.reload();
