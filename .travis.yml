@@ -1,0 +1,57 @@
+deploy:
+  provider: releases
+  api_key:
+      secure:
+  file:
+      - dist/makerlog-menubar-mac-*.zip
+      - dist/makerlog-menubar-mac-*.dmg
+      - dist/makerlog-menubar-windows-*.exe
+      - dist/makerlog-menubar-linux-*.tar.gz
+      - dist/makerlog-menubar-linux-*.snap
+      - dist/makerlog-menubar-linux-*.deb
+      - dist/makerlog-menubar-linux-*.rpm
+  file_glob: true
+  skip_cleanup: true
+  on:
+    repo: Booligoosh/makerlog-menubar
+    tags: true
+  sudo: false
+
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9.4
+      language: node_js
+      node_js: "10"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+
+    - os: linux
+      services: docker
+      language: generic
+
+cache:
+  directories:
+    - node_modules
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
+
+script:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker run --rm \
+        -v ${PWD}:/project \
+        -v ~/.cache/electron:/root/.cache/electron \
+        -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+        electronuserland/builder:wine \
+        /bin/bash -c "yarn --link-duplicates --pure-lockfile && yarn run linwin"
+    else
+      yarn run mac
+    fi
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
+
+branches:
+  only:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"
