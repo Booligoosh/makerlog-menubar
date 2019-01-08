@@ -62,11 +62,13 @@ mb.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
     
-    iconPath = electron.app.getAppPath() + "/Icon.png";
-    tray = new electron.Tray(iconPath);
-    tray.setToolTip('Makerlog Menubar');
-    tray.setHighlightMode('always');
-    mb.tray = tray;
+    if (process.platform != 'darwin') {
+        iconPath = electron.app.getAppPath() + '/Icon.' + process.platform == 'win32' ? 'ico' : 'png';
+        tray = new electron.Tray(iconPath);
+        tray.setToolTip('Makerlog Menubar');
+        tray.setHighlightMode('always');
+        mb.tray = tray;
+    }
     
     // Security measure from https://electronjs.org/docs/tutorial/security#6-define-a-content-security-policy
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
