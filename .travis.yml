@@ -13,7 +13,7 @@ deploy:
   file_glob: true
   skip_cleanup: true
   on:
-    repo: digitalsparky/makerlog-menubar
+    repo: Booligoosh/makerlog-menubar
     tags: true
   sudo: false
 
