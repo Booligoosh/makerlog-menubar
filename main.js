@@ -1,5 +1,6 @@
 const electron = require('electron')
 const menubar = require('menubar')
+//const electronVibrancy = require('electron-vibrancy');
 const Menu = electron.Menu;
 const globalShortcut = electron.globalShortcut;
 const systemPreferences = electron.systemPreferences;
@@ -114,6 +115,8 @@ mb.on('after-create-window', function ready () {
         mb.window.setPosition(Math.round((screenDimensions.width - width) / 2), y);
         // Center window when resizing horizontally
     });
+    
+    //electronVibrancy.SetVibrancy(mb.window, 9);
     
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {

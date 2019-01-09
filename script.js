@@ -187,7 +187,7 @@ function createTask(content, done, in_progress, attachment) {
         data.taskComposer.content_autocompleted = '';
         data.taskComposer.attachment = undefined;
         data.taskComposer.attachmentURL = undefined;
-        document.querySelector('.attachment').files = new FileList();
+        document.querySelector('.attachment').value = '';
     })
 }
 
