@@ -30,13 +30,13 @@
                 "tar.gz"
             ],
             "darkModeSupport": true,
-            "icon": "icon.Icns"
+            "icon": "Icon.icns"
         },
         "win": {
             "target": [
                 "nsis"
             ],
-            "icon": "icon.ico"
+            "icon": "Icon.ico"
         },
         "linux": {
             "target": [
@@ -46,7 +46,7 @@
                 "snap",
                 "rpm"
             ],
-            "icon": "icon.png",
+            "icon": "Icon.png",
             "category": "Office"
         }
     }
