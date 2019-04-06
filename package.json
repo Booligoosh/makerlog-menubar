@@ -17,7 +17,8 @@
     "main": "main.js",
     "scripts": {
         "pack": "electron-builder --dir",
-        "build": "electron-builder",
+        "linwin": "electron-builder -wl", 
+        "mac": "electron-builder -m",    
         "start": "electron ."
     },
     "build": {
