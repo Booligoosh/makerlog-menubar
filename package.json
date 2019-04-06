@@ -41,6 +41,7 @@
         "linux": {
             "target": [
                 "AppImage",
+                "deb",
                 "tar.gz",
                 "snap",
                 "rpm"
