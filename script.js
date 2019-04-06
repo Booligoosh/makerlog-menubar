@@ -20,7 +20,7 @@ if(typeof tokenStore === 'undefined') {
     
     setInterval(refreshMakerlogToken, 59*60*1000); // Every 59 minutes
     checkForNewUpdate();
-    setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
+    //setInterval(checkForNewUpdate,10*60*1000); // Every 10 minutes
     fetchHashtags();
 }
 
@@ -261,7 +261,9 @@ function checkForNewUpdate() {
         var latestNum = Number(latest.tag_name.replace('v','').replace(/\./g,''));
 
         if(latestNum > currentNum) {
-            alert(`Please update to the latest version!\nYou can download it here:\n\nhttps://github.com/Booligoosh/makerlog-menubar/releases/tag/${latest.tag_name}`);
+            if(typeof localStorage.lastUpdateNotificationTime == 'undefined' || Date.time() - Number(localStorage.lastUpdateNotificationTime) > 1000*60*60*24) { // 24 hours
+                alert(`Please update to the latest version!\n${latest.name}\n\nYou can download it here:\nhttps://github.com/Booligoosh/makerlog-menubar/releases/tag/${latest.tag_name}`);
+            }
         }
     })
 }
