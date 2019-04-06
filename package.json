@@ -7,7 +7,8 @@
         "email": "me@ethan.link"
     },
     "dependencies": {
-        "menubar": "*"
+        "menubar": "*",
+        "yarn": "^1.15.2"
     },
     "devDependencies": {
         "electron": "^4.0.6",
