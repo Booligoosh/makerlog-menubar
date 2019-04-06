@@ -1,6 +1,12 @@
 # [Makerlog Menubar](https://menubar.getmakerlog.com)
 ⚡️ A super fast menubar app for [Makerlog](https://getmakerlog.com) 🔥🚢
 
+---
+
+[![Build Status](https://travis-ci.org/Booligoosh/makerlog-menubar.svg?branch=master)](https://travis-ci.org/Booligoosh/makerlog-menubar)
+
+---
+
 ## Credits
 App created by [Ethan](https://ethan.link).
 
