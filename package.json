@@ -10,12 +10,15 @@
         "menubar": "*"
     },
     "devDependencies": {
-        "electron": "^4.0.0",
+        "electron": "^4.0.6",
         "electron-installer-debian": "^1.0.1",
-        "electron-packager": "^13.0.1"
+        "electron-packager": "^13.1.1",
+        "electron-builder": "^20.39.0"
     },
     "main": "main.js",
     "scripts": {
+        "mac": "electron-builder --mac",
+        "linwin": "electron-builder --linux && electron-builder --windows",
         "build": "electron-packager . 'Makerlog Menubar' --platform=darwin --arch=x64 --icon=Icon.icns",
         "build-linux": "electron-packager . makerlog-menubar --platform=linux --arch=x64 --icon=Icon.svg --out dist/",
         "build-linux-deb": "electron-installer-debian --config debian-config.json",
