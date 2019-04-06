@@ -7,22 +7,45 @@
         "email": "me@ethan.link"
     },
     "dependencies": {
-        "menubar": "*",
-        "yarn": "^1.15.2"
+        "electron-builder": "^20.39.0",
+        "menubar": "*"
     },
     "devDependencies": {
-        "electron": "^4.0.6",
-        "electron-installer-debian": "^1.0.1",
-        "electron-packager": "^13.1.1",
-        "electron-builder": "^20.39.0"
+        "electron": "^4.0.0"
     },
     "main": "main.js",
     "scripts": {
-        "mac": "electron-builder --mac",
-        "linwin": "electron-builder --linux && electron-builder --windows",
-        "build": "electron-packager . 'Makerlog Menubar' --platform=darwin --arch=x64 --icon=Icon.icns",
-        "build-linux": "electron-packager . makerlog-menubar --platform=linux --arch=x64 --icon=Icon.svg --out dist/",
-        "build-linux-deb": "electron-installer-debian --config debian-config.json",
+        "pack": "electron-builder --dir",
+        "build": "electron-builder",
         "start": "electron ."
+    },
+    "build": {
+        "appId": "com.booligoosh.makerlog-menubar",
+        "mac": {
+            "category": "public.app-category.productivity",
+            "target": [
+                "dmg",
+                "tar.gz"
+            ],
+            "darkModeSupport": true,
+            "icon": "icon.Icns"
+        },
+        "win": {
+            "target": [
+                "nsis"
+            ],
+            "icon": "icon.ico"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "dmg",
+                "tar.gz",
+                "snap",
+                "rpm"
+            ],
+            "icon": "icon.png",
+            "category": "Office"
+        }
     }
 }

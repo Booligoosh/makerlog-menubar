@@ -3,13 +3,13 @@ deploy:
   api_key:
       secure: jIluGkbUPwTId9xR0vmjvw8VhvxWRI7n/ArJI57CCx+7uh0vZYXg5IeiFiib00FEPnsBbpaKSdkN5CNlLOU62ts4xFk03+x4KfGdruqBidsN6Z/l8b+NLJqe8GzYAjXDDnDG8nzTDRkGErlShfQ3xFgI78Jc6fprV3dSJ/x3uj99yIfBWC/CbGUlqoY8OY38Bd5GDyaDYv5Vden0uQktxVcFZ2ms/IJOjZDKYVMy1+jSkeHnrSuLG2FiBRbLO648uJrF+cRNriMv8luRT/O2XGc88miCsqou3BzXRN47Jhpq4TjiSDZY/xM9C/7veisW6HXRCsDgd8d6wtb97tCBlaCIn09bMoOb9eagbkRz+lVL4b7J8TiDJcSKc6APQKMhPXukbyQpOKPlHTJ+/0E0XzQez6I6BVwqyxqdCmAXzV1+cGjWeUeZVmkzi8eum/bZxbllgHTKcEdEkjMvwYPkWuVblA0Xg0R18/3HFMYsPc2r+l21z3d+UoxM87YDCSEFK0UgTHd+UVYpAogJxV9BZ3BCp0fcr3wT0Sxwu2kC0mbqCPFvJAsH3RkdXIB6EkLuP7P0bqA7EtQ23NLVXE/Reie0AawzBMC90qrsmWmGg+/sYw6BGILqmfl+Syurjkz2lRZXQAkOeYNvJv58oSC3Q7CosS/taxUSxxhGbDz7Yes=
   file:
-      - dist/makerlog-menubar-mac-*.zip
-      - dist/makerlog-menubar-mac-*.dmg
-      - dist/makerlog-menubar-windows-*.exe
-      - dist/makerlog-menubar-linux-*.tar.gz
-      - dist/makerlog-menubar-linux-*.snap
-      - dist/makerlog-menubar-linux-*.deb
-      - dist/makerlog-menubar-linux-*.rpm
+      - dist/*.tar.gz
+      - dist/*.dmg
+      - dist/*.exe
+      - dist/*.snap
+      - dist/*.deb
+      - dist/*.rpm
+      - dist/*.AppImage
   file_glob: true
   skip_cleanup: true
   on:
