@@ -196,7 +196,7 @@ app.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
     
-    var iconPath = process.platform == 'darwin' ? path.join(__dirname, 'IconTemplate.png') : (electron.app.getAppPath() + '/Icon.' + process.platform == 'win32' ? 'ico' : 'png');
+    var iconPath = path.join(__dirname, `Icon${process.platform == 'darwin' ? 'Template' : ''}.${process.platform == 'win32' ? 'ico' : 'png'}`);
     
     mb.tray = new Tray(iconPath);
     mb.tray.on('click', clicked);
