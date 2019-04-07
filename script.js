@@ -281,8 +281,9 @@ function fetchHashtags() {
 }
 
 function autofillHashtag() {
-    var fullTextWithSuggestion = data.taskComposer.content;
     if((/#./).test(data.taskComposer.content)) {
+        console.log('AUTOCOMPLETE');
+        var fullTextWithSuggestion = data.taskComposer.content;
         var split = data.taskComposer.content.split('#');
         var hashtagText = split[split.length - 1];
         //console.log(hashtagText);
@@ -293,10 +294,12 @@ function autofillHashtag() {
         fullTextWithSuggestion = split;
         fullTextWithSuggestion[split.length - 1] = bestSuggestion;
         fullTextWithSuggestion = fullTextWithSuggestion.join('#');
+        data.taskComposer.content_autocompleted = fullTextWithSuggestion;
+    } else if (data.taskComposer.content_autocompleted != '') {
+        data.taskComposer.content_autocompleted = '';
     }
 
     //console.log(fullTextWithSuggestion);
-    data.taskComposer.content_autocompleted = fullTextWithSuggestion;
 }
 
 function login() {
