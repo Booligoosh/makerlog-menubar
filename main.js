@@ -219,7 +219,9 @@ app.on('ready', function ready () {
         }
     });
     
-    app.dock.hide();
+    if(typeof app.dock !== 'undefined') {
+        app.dock.hide();
+    }
     mb.window.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true});
     mb.window.setFullScreenable(false);
     
