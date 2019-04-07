@@ -1,11 +1,19 @@
-var electron = require('electron');
-var ipcRenderer = electron.ipcRenderer;
+if(typeof require !== 'undefined') {
+    var electron = require('electron');
+    var getGlobal = electron.remote.getGlobal;
+    var ipcRenderer = electron.ipcRenderer;
+    var openExternalURL = electron.shell.openExternal;
+} else {
+    var getGlobal = window.Bridge.getGlobal;
+    var ipcRenderer = window.Bridge.ipcRenderer;
+    var openExternalURL = getGlobal('openExternalURL');
+}
 
-document.querySelector('html').style.fontSize = electron.remote.getGlobal('fontSize')/1.5;
-electron.remote.getGlobal('goNormalSize')();
+document.querySelector('html').style.fontSize = getGlobal('fontSize')/1.5;
+getGlobal('goNormalSize')();
 
 var client_id = '7JomVQ7FyglKL2PvIxCVS1rIo9kMQKcv78lk4vwM';
-var tokenStore = electron.remote.getGlobal('token');
+var tokenStore = getGlobal('token');
 var token;
 var refreshToken;
 
@@ -24,8 +32,10 @@ if(typeof tokenStore === 'undefined') {
     fetchHashtags();
 }
 
+console.log(ipcRenderer.on);
+
 ipcRenderer.on('darkModeChange', (event, arg) => {
-    data.darkMode = electron.remote.getGlobal('darkMode');
+    data.darkMode = getGlobal('darkMode');
 })
 
 ipcRenderer.on('focusContent', (event, arg) => {
@@ -34,7 +44,7 @@ ipcRenderer.on('focusContent', (event, arg) => {
 
 var data = {
     dragover: false,
-    darkMode: electron.remote.getGlobal('darkMode'),
+    darkMode: getGlobal('darkMode'),
     taskComposer: {
         content: '',
         content_autocompleted: '',
@@ -102,7 +112,7 @@ window.onkeydown = function(e){
         localStorage.hideProgressBar = !data.progressBar.show;
     }
     if((e.keyCode == 75 || e.keyCode == 191) && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+K or CtrlOrCommand+/
-        electron.shell.openExternal('https://www.notion.so/aae9fb064f234403b497707ca037b0ba');
+        openExternalURL('https://www.notion.so/aae9fb064f234403b497707ca037b0ba');
     }
     if(e.keyCode == 82 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+R
         console.log('Reloading!');
@@ -110,7 +120,7 @@ window.onkeydown = function(e){
     }
     
     var zoomStepSize = 2;
-    var setFontSize = electron.remote.getGlobal('setFontSize');
+    var setFontSize = getGlobal('setFontSize');
     
     if(e.keyCode == 187 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+=
         console.log('Zooming in!');
@@ -225,9 +235,9 @@ function autofillHashtag() {
 function login() {
     document.body.innerHTML = '';
 
-    var storeAppHref = electron.remote.getGlobal('storeAppHref');
+    var storeAppHref = getGlobal('storeAppHref');
     storeAppHref(window.location.href);
-    electron.remote.getGlobal('goFullscreen')();
+    getGlobal('goFullscreen')();
 
     window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=code`;
 }
@@ -240,7 +250,7 @@ function refreshMakerlogToken(notify = false) {
         }).then(r => r.json()).then(r => {
             token = r.access_token;
             refreshToken = r.refresh_token;
-            electron.remote.getGlobal('storeToken')(`${token}|${refreshToken}`);
+            getGlobal('storeToken')(`${token}|${refreshToken}`);
             if(notify) {
                 alert('Failed. Please try that again!')
             }
@@ -257,7 +267,7 @@ function refreshMakerlogToken(notify = false) {
 function checkForNewUpdate() {
     return myFetch('https://api.github.com/repos/Booligoosh/makerlog-menubar/releases/latest')
     .then(latest => {
-        var currentNum = Number(electron.remote.getGlobal('appVersion').replace(/\./g,''));
+        var currentNum = Number(getGlobal('appVersion').replace(/\./g,''));
         var latestNum = Number(latest.tag_name.replace('v','').replace(/\./g,''));
 
         if(latestNum > currentNum) {

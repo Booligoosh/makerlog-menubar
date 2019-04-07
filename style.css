@@ -17,10 +17,13 @@ body {
 #app {
     background-size: cover;
     background-position: center center;
+    /* background-color: white; */
+    background-color: rgba(255,255,255,0.5);
 }
 
 #app.dark-mode {
-    background-color: #171b21; /* rgb(23, 27, 33) */
+    /*background-color: #171b21;*/ /* rgb(23, 27, 33) */
+    background-color: transparent;
 }
 
 .composer {

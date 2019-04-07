@@ -1,13 +1,23 @@
 const electron = require('electron')
 const menubar = require('menubar')
-//const electronVibrancy = require('electron-vibrancy');
 const Menu = electron.Menu;
+const Tray = electron.Tray;
 const globalShortcut = electron.globalShortcut;
 const systemPreferences = electron.systemPreferences;
 const ipcMain = electron.ipcMain;
 const session = electron.session;
+const path = require('path');
 
 global.fontSize = 16*1.5;
+
+if (process.platform == "darwin") {
+    global.darkMode = (systemPreferences.isDarkMode() === true);
+    systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
+}
+
+function calculateVibrancy() {
+    return global.darkMode ? 'dark' : 'light';
+}
 
 var mb = menubar({
     height: global.fontSize*3,
@@ -16,20 +26,20 @@ var mb = menubar({
     movable: false,
     preloadWindow: true,
     skipTaskbar: false,
-    index: 'https://makerlog-menubar-app.netlify.com'
+    vibrancy: calculateVibrancy(),
+    webPreferences: {
+        nodeIntegration: false,
+        preload: path.resolve(__dirname, 'preload.js')
+    },
+    index: `file://${__dirname}/index.html`
 })
 
 global.appVersion = electron.app.getVersion();
 
-
-if (process.platform == "darwin") {
-    global.darkMode = (systemPreferences.isDarkMode() === true);
-    systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => darkModeChange());
-}
-
 function darkModeChange() {
     console.log('CHANGE!');
     global.darkMode = (systemPreferences.isDarkMode() === true);
+    mb.window.setVibrancy(calculateVibrancy());
     mb.window.webContents.send('darkModeChange', '');
 }
 
@@ -58,10 +68,14 @@ global.setFontSize = function(fontSize) {
     global.fontSize = fontSize*1.5;
     global.goNormalSize();
 }
+global.openExternalURL = function(url) {
+    electron.shell.openExternal(url);
+}
 
 mb.on('ready', function ready () {
     console.log('app is ready')
     // your app code here
+    setPosition();
     
     if (process.platform != 'darwin') {
         iconPath = electron.app.getAppPath() + '/Icon.' + process.platform == 'win32' ? 'ico' : 'png';
@@ -109,15 +123,20 @@ mb.on('after-create-window', function ready () {
     //mb.window.openDevTools();
     
     mb.window.on('resize', function (event) {
-        var screenDimensions = electron.screen.getPrimaryDisplay().workAreaSize;
-        var [width, height] = mb.window.getSize();
-        var [x, y] = mb.window.getPosition();
-        mb.window.setPosition(Math.round((screenDimensions.width - width) / 2), y);
+        setPosition();
         // Center window when resizing horizontally
     });
-    
-    //electronVibrancy.SetVibrancy(mb.window, 9);
-    
+
+    mb.window.on('show', function (event) {
+        setPosition();
+        // Override menubar library positioning
+    });
+
+    mb.window.on('ready-to-show', function (event) {
+        setPosition();
+        // Override menubar library positioning
+    });
+        
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {
         //console.log('Shift+CmdOrCtrl+M is pressed');
@@ -129,3 +148,11 @@ mb.on('after-create-window', function ready () {
         }
     })
 })
+
+function setPosition () {
+    var screenDimensions = electron.screen.getPrimaryDisplay().workAreaSize;
+    var menuBarHeight = /*electron.screen.getMenuBarHeight()*/22;
+    var [width, height] = mb.window.getSize();
+    var [x, y] = mb.window.getPosition();
+    mb.window.setPosition(Math.round((screenDimensions.width - width) / 2), menuBarHeight);
+}
