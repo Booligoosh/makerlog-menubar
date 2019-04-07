@@ -22,8 +22,11 @@ body {
 }
 
 #app.dark-mode {
-    /*background-color: #171b21;*/ /* rgb(23, 27, 33) */
     background-color: transparent;
+}
+
+body.no-preload #app.dark-mode {
+    background-color: #171b21; /* rgb(23, 27, 33) */
 }
 
 .composer {

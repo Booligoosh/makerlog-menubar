@@ -3,6 +3,7 @@ if(typeof require !== 'undefined') {
     var getGlobal = electron.remote.getGlobal;
     var ipcRenderer = electron.ipcRenderer;
     var openExternalURL = electron.shell.openExternal;
+    document.body.classList.add('no-preload');
 } else {
     var getGlobal = window.Bridge.getGlobal;
     var ipcRenderer = window.Bridge.ipcRenderer;
