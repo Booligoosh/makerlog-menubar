@@ -7,6 +7,7 @@
         "email": "me@ethan.link"
     },
     "dependencies": {
+        "electron-json-storage": "^4.1.6",
         "menubar": "*",
         "yarn": "^1.15.2"
     },

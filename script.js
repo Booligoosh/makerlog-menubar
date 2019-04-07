@@ -7,6 +7,7 @@ if(typeof require !== 'undefined') {
 } else {
     var getGlobal = window.Bridge.getGlobal;
     var ipcRenderer = window.Bridge.ipcRenderer;
+    var storage = window.Bridge.storage;
     var openExternalURL = getGlobal('openExternalURL');
 }
 
@@ -18,6 +19,7 @@ var tokenStore = getGlobal('token');
 var token;
 var refreshToken;
 var doneToday = 0;
+var streak = 0;
 
 if(typeof tokenStore === 'undefined') {
     login();
@@ -96,6 +98,20 @@ var vm = new Vue({
 });
     
 setInterval(updateDayProgress, 60*1000); // Every 60 seconds, because that's how long it takes for the percentage to change anyway: https://i.imgur.com/cP67s2L.png
+
+function notifyAboutStreak(force = false) {
+    if(doneToday == 0 || force) {
+        var notification = new Notification(`Your ${streak} day streak is about to end!`, {
+            body: `Click here to log a task and keep it up!`,
+            silent: false,
+            requireInteraction: true,
+            sticky: true
+        });
+        notification.onclick = function(event) {
+            getGlobal('openMenubar')();
+        };
+    }
+}
 
 function syncShadowContentScroll() {
     document.querySelector('.shadow-content').scrollLeft = document.querySelector('.content').scrollLeft;
@@ -270,13 +286,34 @@ function fetchHashtags() {
         data.hashtags = r.tasks_per_project.labels.filter(label => label != 'No project').sort((a,b) => r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(b)] - r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(a)]);
         
         console.log('STATS', r);
-        getGlobal('setStreak')(r.streak);
+        streak = r.streak;
+        getGlobal('setStreak')(streak);
         doneToday = r.done_today;
         getGlobal('setDoneToday')(doneToday);
         getGlobal('setMakerScore')(r.maker_score);
         getGlobal('setTDA')(r.tda);
         getGlobal('setRemainingTasks')(r.remaining_tasks);
         getGlobal('setRestDays')(r.rest_day_balance);
+        
+        storage.getMany(['streakNotificationsOn', 'streakNotificationsTime'], function(err, data){
+            if(data.streakNotificationsOn === true) {
+                var time = data.streakNotificationsTime;
+                var hours = time.split(':')[0];
+                var minutes = time.split(':')[1];
+                var currentTime = new Date();
+                var currentHours = currentTime.getHours();
+                var currentMinutes = currentTime.getMinutes();
+                var hoursUntilNotification = hours - currentHours;
+                var minutesUntilNotification = minutes - currentMinutes;
+                var timeoutMilliseconds = minutesUntilNotification*60*1000 + hoursUntilNotification*60*60*1000;
+                console.log(`${hoursUntilNotification} hours and ${minutesUntilNotification} minutes until notification.`);
+
+                if(hours >= 0) {
+                    setTimeout(notifyAboutStreak, timeoutMilliseconds);
+                }
+
+            }
+        });
     })
 }
 

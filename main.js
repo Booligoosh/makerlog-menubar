@@ -3,6 +3,7 @@ const electron = require('electron')
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 const BrowserWindow = electron.BrowserWindow;
+const Notification = electron.Notification;
 const globalShortcut = electron.globalShortcut;
 const systemPreferences = electron.systemPreferences;
 const ipcMain = electron.ipcMain;
@@ -10,8 +11,10 @@ const session = electron.session;
 const path = require('path');
 const app = electron.app;
 const nativeImage = require('electron').nativeImage;
+const storage = require('electron-json-storage');
 
-const indexURL = `https://makerlog-menubar-app.netlify.com/`;
+const indexURL = `file://${__dirname}/index.html`;
+const timePickerURL = `file://${__dirname}/timepicker.html`;
 
 global.fontSize = 16*1.5;
 
@@ -25,6 +28,7 @@ function calculateVibrancy() {
 }
 
 var mb = {};
+var timePickerWindow = null;
 
 global.appVersion = electron.app.getVersion();
 
@@ -33,6 +37,20 @@ function darkModeChange() {
     global.darkMode = (systemPreferences.isDarkMode() === true);
     mb.window.setVibrancy(calculateVibrancy());
     mb.window.webContents.send('darkModeChange', '');
+    timePickerWindow.webContents.send('darkModeChange', '');
+}
+
+global.toggleMenubar = function() {
+    if(mb.window.isVisible()) {
+        mb.window.hide();
+    } else {
+        global.openMenubar();
+    }
+}
+
+global.openMenubar = function() {
+    mb.window.webContents.send('focusContent', '');
+    mb.window.show();
 }
 
 global.storeToken = function(token) {
@@ -62,6 +80,33 @@ global.setFontSize = function(fontSize) {
 }
 global.openExternalURL = function(url) {
     electron.shell.openExternal(url);
+}
+global.openTimePicker = function() {
+    timePickerWindow.show();
+}
+global.closeTimePicker = function() {
+    timePickerWindow.hide();
+    timePickerWindow.webContents.reload();
+}
+
+storage.has('streakNotificationsOn', function(error, hasKey) {
+    if (error) throw error;
+    
+    if (!hasKey) {
+        storage.set('streakNotificationsOn', true);
+    }
+});
+
+storage.has('streakNotificationsTime', function(error, hasKey) {
+    if (error) throw error;
+    
+    if (!hasKey) {
+        storage.set('streakNotificationsTime', '21:00');
+    }
+});
+
+global.reloadMainWindow = function() {
+    mb.window.webContents.reload();
 }
 
 global.setStreak = function(n) {
@@ -140,6 +185,8 @@ var contextMenuTemplate = [
     { label: `Increase font size`, accelerator: `CmdOrCtrl+Plus`, click: () => mb.window.webContents.send('zoomIn', '')},
     { label: `Decrease font size`, accelerator: `CmdOrCtrl+-`, click: () => mb.window.webContents.send('zoomOut', '')},
     { type: `separator` },
+    { label: `Streak notification settings`, click: () => global.openTimePicker()},
+    { type: `separator` },
     { label: `Toggle day progress bar`, accelerator: `CmdOrCtrl+P`, click: () => mb.window.webContents.send('toggleProgressBar', '') },
     { label: `View keyboard shortcuts`, accelerator: `CmdOrCtrl+K`, click: () => global.openExternalURL('https://menubar.getmakerlog.com/keyboard-shortcuts') },
     { label: `Quit`, accelerator: `CmdOrCtrl+Q`, click: () => app.quit() }
@@ -194,16 +241,28 @@ app.on('ready', function ready () {
         setPosition();
         // Override menubar library positioning
     });
+    
+    timePickerWindow = new BrowserWindow({
+        frame: false,
+        height: 250,
+        width: 400,
+        alwaysOnTop: true,
+        preloadWindow: true,
+        skipTaskbar: false,
+        vibrancy: calculateVibrancy(),
+        webPreferences: {
+            nodeIntegration: false,
+            preload: path.resolve(__dirname, 'preload.js')
+        }
+    });
+    timePickerWindow.hide();
+    timePickerWindow.loadURL(timePickerURL);
+    timePickerWindow.openDevTools();
         
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {
         //console.log('Shift+CmdOrCtrl+M is pressed');
-        if(mb.window.isVisible()) {
-            mb.window.hide();
-        } else {
-            mb.window.webContents.send('focusContent', '');
-            mb.window.show();
-        }
+        global.toggleMenubar();
     });
     
     // Security measure from https://electronjs.org/docs/tutorial/security#6-define-a-content-security-policy
@@ -250,7 +309,7 @@ function clicked(e) {
     if (mb.window && mb.window.isVisible()) {
         return hideWindow()
     }
-    showWindow();
+    global.openMenubar();
 }
 
 function showWindow () {

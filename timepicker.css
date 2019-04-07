@@ -1,0 +1,76 @@
+@import url('https://rsms.me/inter/inter-ui.css');
+
+:root {
+    font-size: 16px;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Inter UI', sans-serif;
+}
+
+body {
+    margin: 2em;
+}
+
+*:focus {
+    outline: none;
+}
+
+input[type="time"] {
+    font-size: 1.5rem;
+    border: none;
+    background-color: #eee;
+    padding: 0.1em 0.4em;
+    border-radius: 10px;
+    margin-left: 1rem;
+}
+
+input[type="checkbox"] {
+    margin-right: 0.7em;
+}
+
+h1 {
+    font-size: 1.5em;
+}
+
+body.dark {
+    color: white;
+}
+
+body:not(.dark) {
+    background-color: rgba(255,255,255,0.5);
+}
+
+body.dark input[type="time"] {
+    background-color: rgba(0, 0, 0, 0.37);
+    color:  white;
+}
+
+body.dark button:not([type="submit"]) {
+    opacity:  .5;
+}
+
+form > * {
+    display: block;
+    margin-bottom: 1em;
+}
+
+button {
+    border-radius: 10px;
+    border: none;
+    font-size: 1.1em;
+    padding: 0.2em 0.8em;
+    cursor: pointer;
+    background: #eee;
+    margin-right: 0.3em;
+}
+
+button[type="submit"] {
+    background: rgb(44, 226, 138);
+}
+
+label {
+    display: flex;
+    align-items: center;
+}

@@ -3,6 +3,7 @@
 // in preload scripts, we have access to node.js and electron APIs
 // the remote web app will not have access, so this is safe
 const { ipcRenderer, ipc, remote } = require('electron');
+const storage = require('electron-json-storage');
 
 init();
 
@@ -16,6 +17,11 @@ function init() {
   // user's computer. E.g. don't directly expose core Electron (even IPC) or node.js modules.
   window.Bridge = {
       getGlobal: remote.getGlobal,
-      ipcRenderer: ipcRenderer
+      ipcRenderer: ipcRenderer,
+      storage: {
+          get: storage.get,
+          getMany: storage.getMany,
+          set: storage.set
+      }
   }
 }
