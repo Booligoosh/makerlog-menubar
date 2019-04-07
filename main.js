@@ -1,3 +1,4 @@
+require('dotenv').load();
 const electron = require('electron')
 //const menubar = require('menubar')
 const Menu = electron.Menu;
@@ -13,8 +14,8 @@ const app = electron.app;
 const nativeImage = require('electron').nativeImage;
 const storage = require('electron-json-storage');
 
-const indexURL = `file://${__dirname}/index.html`;
-const timePickerURL = `file://${__dirname}/timepicker.html`;
+const indexURL = process.env['MAKERLOG_MENUBAR_CONTEXT'] == 'DEV' ? `file://${__dirname}/index.html` : 'https://makerlog-menubar-app.netlify.com';
+const timePickerURL = process.env['MAKERLOG_MENUBAR_CONTEXT'] == 'DEV' ? `file://${__dirname}/index.html` : 'https://makerlog-menubar-app.netlify.com';
 
 global.fontSize = 16*1.5;
 
