@@ -11,7 +11,7 @@ const path = require('path');
 const app = electron.app;
 const nativeImage = require('electron').nativeImage;
 
-const indexURL = `file://${__dirname}/index.html`;
+const indexURL = `https://makerlog-menubar-app.netlify.com/`;
 
 global.fontSize = 16*1.5;
 
