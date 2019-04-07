@@ -1,8 +1,11 @@
-# [Makerlog Menubar](https://menubar.getmakerlog.com)
-⚡️ A super fast menubar app for [Makerlog](https://getmakerlog.com) 🔥🚢
+[![GitHub Downloads](https://img.shields.io/github/downloads/Booligoosh/makerlog-menubar/total.svg)](https://github.com/Booligoosh/makerlog-menubar/releases)
+[![Current Release Version](https://img.shields.io/github/release/Booligoosh/makerlog-menubar.svg)](https://github.com/Booligoosh/makerlog-menubar/releases)
+[![Build Status](https://travis-ci.org/Booligoosh/makerlog-menubar.svg?branch=master)](https://travis-ci.org/Booligoosh/makerlog-menubar)
 
 ---
-[![Build Status](https://travis-ci.org/Booligoosh/makerlog-menubar.svg?branch=master)](https://travis-ci.org/Booligoosh/makerlog-menubar)
+
+# [Makerlog Menubar](https://menubar.getmakerlog.com)
+⚡️ A super fast menubar app for [Makerlog](https://getmakerlog.com) 🔥🚢
 
 ## Credits
 App created by [Ethan](https://ethan.link).
