@@ -1,6 +1,5 @@
 require('dotenv').load();
 const electron = require('electron')
-//const menubar = require('menubar')
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 const BrowserWindow = electron.BrowserWindow;
