@@ -173,7 +173,7 @@ var contextMenuTemplate = [
     { type: `separator` },
     { myId: `user`, label: '', visible: false, click: () => global.openExternalURL(`https://getmakerlog.com/@${globalUsername}`)},
     { type: `separator` },
-    { myId: `heatmap`, label: '', visible: false},
+    { myId: `heatmap`, label: '', visible: false, click: () => global.openExternalURL(`https://getmakerlog.com/@${globalUsername}`)},
     { type: `separator` },
     { myId: `makerScore`, label: '', enabled: false, visible: false },
     { myId: `streak`, label: '', enabled: false, visible: false },
