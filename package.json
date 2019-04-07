@@ -22,6 +22,7 @@
         "start": "electron ."
     },
     "build": {
+        "productName": "Makerlog Menubar",
         "appId": "com.booligoosh.makerlog-menubar",
         "mac": {
             "category": "public.app-category.productivity",
