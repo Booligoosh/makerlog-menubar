@@ -257,7 +257,6 @@ app.on('ready', function ready () {
     });
     timePickerWindow.hide();
     timePickerWindow.loadURL(timePickerURL);
-    timePickerWindow.openDevTools();
         
     // Global keyboard shortcuts
     globalShortcut.register('Shift+CmdOrCtrl+M', function () {
@@ -281,7 +280,7 @@ app.on('ready', function ready () {
         submenu: [
             { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
             { type: "separator" },
-            { label: "Inspect", accelerator: "Alt+CmdOrCtrl+I", click: function() { mb.window.openDevTools(); }},
+            { label: "Inspect", accelerator: "Alt+CmdOrCtrl+I", click: function() { mb.window.openDevTools(); timePickerWindow.openDevTools() }},
             { label: "Hide", accelerator: "Esc", click: function() { mb.window.hide(); }},
             { label: "Reload", accelerator: "CmdOrCtrl+R", click: function() { mb.window.webContents.reload(); }},
         ]}, {
