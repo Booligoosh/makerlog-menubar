@@ -16,6 +16,7 @@ var client_id = '7JomVQ7FyglKL2PvIxCVS1rIo9kMQKcv78lk4vwM';
 var tokenStore = getGlobal('token');
 var token;
 var refreshToken;
+var doneToday = 0;
 
 if(typeof tokenStore === 'undefined') {
     login();
@@ -34,6 +35,10 @@ if(typeof tokenStore === 'undefined') {
 
 console.log(ipcRenderer.on);
 
+ipcRenderer.on('toggleProgressBar', (event, arg) => {
+    toggleProgressBar();
+})
+
 ipcRenderer.on('darkModeChange', (event, arg) => {
     data.darkMode = getGlobal('darkMode');
 })
@@ -41,6 +46,18 @@ ipcRenderer.on('darkModeChange', (event, arg) => {
 ipcRenderer.on('focusContent', (event, arg) => {
     document.querySelector('.content').focus();
 })
+
+ipcRenderer.on('zoomIn', (event, arg) => {
+    zoomIn();
+});
+
+ipcRenderer.on('zoomOut', (event, arg) => {
+    zoomOut();
+});
+
+ipcRenderer.on('resetZoom', (event, arg) => {
+    resetZoom();
+});
 
 var data = {
     dragover: false,
@@ -59,6 +76,10 @@ var data = {
         show: true,
         showTooltip: false,
         percentage: calculateDayProgress()
+    },
+    heatmap: {
+        data: [],
+        max: 0,
     }
 }
 
@@ -90,6 +111,12 @@ function calculateDayProgress() {
     // Calculation identical to Sergio's: https://gitlab.com/makerlog/web/blob/173ca1fe22dad7672d60be51e948b19088b843bb/src/pages/StreamPage/components/DayProgressBar.js#L40
 }
 
+function toggleProgressBar () {
+    console.log('Toggling progress bar!');
+    data.progressBar.show = !data.progressBar.show;
+    localStorage.hideProgressBar = !data.progressBar.show;
+}
+
 window.onkeydown = function(e){
     //console.log(e);
     
@@ -106,43 +133,47 @@ window.onkeydown = function(e){
         data.taskComposer.done = dropdown.value == 'done';
         data.taskComposer.in_progress = dropdown.value == 'in_progress'
     }
-    if(e.keyCode == 80 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+P
-        console.log('Toggling progress bar!');
-        data.progressBar.show = !data.progressBar.show;
-        localStorage.hideProgressBar = !data.progressBar.show;
-    }
-    if((e.keyCode == 75 || e.keyCode == 191) && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+K or CtrlOrCommand+/
-        openExternalURL('https://www.notion.so/aae9fb064f234403b497707ca037b0ba');
-    }
     if(e.keyCode == 82 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+R
         console.log('Reloading!');
         window.location.reload();
     }
     
-    var zoomStepSize = 2;
-    var setFontSize = getGlobal('setFontSize');
-    
     if(e.keyCode == 187 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+=
-        console.log('Zooming in!');
-        var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) + zoomStepSize;
-        document.querySelector('html').style.fontSize = newFontSize;
-        setFontSize(newFontSize);
-        vm.$forceUpdate();
+        zoomIn();
     }
     if(e.keyCode == 189 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+-
-        console.log('Zooming out!');
-        var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) - zoomStepSize;
-        document.querySelector('html').style.fontSize = newFontSize;
-        setFontSize(newFontSize);
-        vm.$forceUpdate();
+        zoomOut();
     }
     if(e.keyCode == 48 && (e.ctrlKey || e.metaKey)) { // aka CtrlOrCommand+0
-        console.log('Resetting zoom!');
-        var newFontSize = 16;
-        document.querySelector('html').style.fontSize = newFontSize;
-        setFontSize(newFontSize);
-        vm.$forceUpdate();
+        resetZoom();
     }
+}
+    
+var zoomStepSize = 2;
+var setFontSize = getGlobal('setFontSize');
+
+function zoomIn () {
+    console.log('Zooming in!');
+    var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) + zoomStepSize;
+    document.querySelector('html').style.fontSize = newFontSize;
+    setFontSize(newFontSize);
+    vm.$forceUpdate();
+}
+
+function zoomOut () {
+    console.log('Zooming out!');
+    var newFontSize = Number(getComputedStyle(document.querySelector('html')).fontSize.replace('px','')) - zoomStepSize;
+    document.querySelector('html').style.fontSize = newFontSize;
+    setFontSize(newFontSize);
+    vm.$forceUpdate();
+}
+
+function resetZoom () {
+    console.log('Resetting zoom!');
+    var newFontSize = 16;
+    document.querySelector('html').style.fontSize = newFontSize;
+    setFontSize(newFontSize);
+    vm.$forceUpdate();
 }
 
 window.addEventListener('paste', function(e){
@@ -198,6 +229,9 @@ function createTask(content, done, in_progress, attachment) {
         data.taskComposer.attachment = undefined;
         data.taskComposer.attachmentURL = undefined;
         document.querySelector('.attachment').value = '';
+        
+        doneToday++;
+        getGlobal('setDoneToday')(doneToday);
     })
 }
 
@@ -207,9 +241,41 @@ function fetchHashtags() {
         headers: {
             'Authorization': `Bearer ${token}`
         }
-    }).then(r => myFetch(`https://api.getmakerlog.com/users/${r.id}/stats/`))
+    }).then(r => {
+        console.log('ME', r);
+        myFetch(r.avatar).then(r => r.blob()).then(blob => {
+            return new Promise(resolve => {
+              let reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            }).then(dataURL => getGlobal('setUser')(r.username, dataURL));
+        });
+        myFetch(`https://api.getmakerlog.com/users/${r.id}/activity_graph/`).then(r => {
+            console.log('HEATMAP', r);
+            data.heatmap.data = r.data;
+            vm.$forceUpdate();
+            setTimeout(() => {
+                document.querySelector('#heatmap .vch__months__labels__wrapper').style.display = 'none';
+                document.querySelector('#heatmap .vch__days__labels__wrapper').style.display = 'none';
+                document.querySelector('#heatmap .vch__legend__wrapper').style.display = 'none';
+                document.querySelector('#heatmap .vch__year__wrapper').removeAttribute('transform')
+                document.querySelector('#heatmap').setAttribute('viewBox', '0 0 647 83');
+                svgElemToPngDataURL(document.querySelector('#heatmap')).then(dataURL => getGlobal('setHeatmap')(dataURL));
+            }, 100);
+        });
+        return myFetch(`https://api.getmakerlog.com/users/${r.id}/stats/`)
+    })
     .then(r => {
         data.hashtags = r.tasks_per_project.labels.filter(label => label != 'No project').sort((a,b) => r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(b)] - r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(a)]);
+        
+        console.log('STATS', r);
+        getGlobal('setStreak')(r.streak);
+        doneToday = r.done_today;
+        getGlobal('setDoneToday')(doneToday);
+        getGlobal('setMakerScore')(r.maker_score);
+        getGlobal('setTDA')(r.tda);
+        getGlobal('setRemainingTasks')(r.remaining_tasks);
+        getGlobal('setRestDays')(r.rest_day_balance);
     })
 }
 
@@ -285,6 +351,28 @@ function getBase64(file) {
     reader.onload = () => resolve(reader.result);
     reader.onerror = error => reject(error);
   });
+}
+
+function svgElemToPngDataURL(svg) {
+    return new Promise(resolve => {
+        var svgData = new XMLSerializer().serializeToString(svg);
+        var canvas = document.createElement("canvas");
+        var svgSize = svg.getBoundingClientRect();
+        canvas.width = svgSize.width * 3;
+        canvas.height = svgSize.height * 3;
+        canvas.style.width = svgSize.width;
+        canvas.style.height = svgSize.height;
+        var ctx = canvas.getContext("2d");
+
+        var img = document.createElement("img");
+        img.setAttribute("src", "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData))));
+
+        img.onload = function () {
+          ctx.drawImage(img, 0, 0);
+          var canvasdata = canvas.toDataURL("image/png", 1);
+          resolve(canvasdata)
+        };
+    })
 }
 
 function myFetch(input,init = {}) {

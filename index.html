@@ -1,4 +1,6 @@
 <script src="vue.min.js"></script>
+<script src="vue-calendar-heatmap.browser.js"></script>
+<link rel="stylesheet" href="vue-calendar-heatmap.css">
 <link rel="stylesheet" href="style.css">
 
 <div id="app" v-bind:class="darkMode ? 'dark-mode' : ''" v-on:dragover="dragover = true" v-on:dragenter="dragover = true" v-on:dragleave="dragover = false" v-on:dragend="dragover = false" v-on:drop="dragover = false; dropEvent($event)" v-bind:style="typeof taskComposer.attachment !== 'undefined' ? `background-image: linear-gradient(rgba(${darkMode?'23,27,33':'255,255,255'},0.75),rgba(${darkMode?'23,27,33':'255,255,255'},0.75)), url(${taskComposer.attachmentURL})` : ''">
@@ -24,6 +26,8 @@
         <input class="attachment" type="file" v-on:input="setAttachment($event.target.files[0])">
         <button class="submit" type="submit">{{taskComposer.processing ? 'Processing...' : (typeof taskComposer.attachment !== 'undefined' ? 'Submit with image!' : 'Submit!')}}</button>
     </form>
+    
+     <calendar-heatmap id="heatmap" v-if="heatmap.data.length > 0" :values="heatmap.data" :end-date="heatmap.data[0].date" :range-color="['#e2e2e2', '#e2e2e2', '#85e1b7', '#53af87', '#1c7f5a', '#106748']" :tooltip="false"></calendar-heatmap>
 </div>
 
 <script src="script.js"></script>
