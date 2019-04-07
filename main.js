@@ -1,4 +1,4 @@
-require('dotenv').load();
+const dotenv = require('dotenv').config();
 const electron = require('electron')
 const Menu = electron.Menu;
 const Tray = electron.Tray;
