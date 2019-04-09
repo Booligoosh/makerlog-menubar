@@ -20,6 +20,7 @@ var token;
 var refreshToken;
 var doneToday = 0;
 var streak = 0;
+var userId = 0;
 
 if(typeof tokenStore === 'undefined') {
     login();
@@ -60,6 +61,23 @@ ipcRenderer.on('zoomOut', (event, arg) => {
 
 ipcRenderer.on('resetZoom', (event, arg) => {
     resetZoom();
+});
+
+ipcRenderer.on('markTodoAsDone', (event, taskId) => {
+    
+    console.log('MARKING TODO AS DONE', taskId);
+    
+    myFetch(`https://api.getmakerlog.com/tasks/${taskId}/`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            done: true,
+            in_progress: false
+        })
+    }).then(r => console.log(r));
 });
 
 var data = {
@@ -260,6 +278,7 @@ function fetchHashtags() {
         }
     }).then(r => {
         console.log('ME', r);
+        userId = r.id;
         myFetch(r.avatar).then(r => r.blob()).then(blob => {
             return new Promise(resolve => {
               let reader = new FileReader();
@@ -267,19 +286,10 @@ function fetchHashtags() {
               reader.readAsDataURL(blob);
             }).then(dataURL => getGlobal('setUser')(r.username, dataURL));
         });
-        myFetch(`https://api.getmakerlog.com/users/${r.id}/activity_graph/`).then(r => {
-            console.log('HEATMAP', r);
-            data.heatmap.data = r.data;
-            vm.$forceUpdate();
-            setTimeout(() => {
-                document.querySelector('#heatmap .vch__months__labels__wrapper').style.display = 'none';
-                document.querySelector('#heatmap .vch__days__labels__wrapper').style.display = 'none';
-                document.querySelector('#heatmap .vch__legend__wrapper').style.display = 'none';
-                document.querySelector('#heatmap .vch__year__wrapper').removeAttribute('transform')
-                document.querySelector('#heatmap').setAttribute('viewBox', '0 0 647 83');
-                svgElemToPngDataURL(document.querySelector('#heatmap')).then(dataURL => getGlobal('setHeatmap')(dataURL));
-            }, 100);
-        });
+        
+        getTodos();
+        getHeatmap();
+        
         return myFetch(`https://api.getmakerlog.com/users/${r.id}/stats/`)
     })
     .then(r => {
@@ -315,6 +325,29 @@ function fetchHashtags() {
             }
         });
     })
+}
+
+function getTodos() {
+    myFetch(`https://api.getmakerlog.com/tasks/?user=${userId}&done=false`).then(r => {
+        console.log('TODOS', r);
+        getGlobal('setTodos')(r.results);
+    });
+}
+
+function getHeatmap() {
+    myFetch(`https://api.getmakerlog.com/users/${userId}/activity_graph/`).then(r => {
+        console.log('HEATMAP', r);
+        data.heatmap.data = r.data;
+        vm.$forceUpdate();
+        setTimeout(() => {
+            document.querySelector('#heatmap .vch__months__labels__wrapper').style.display = 'none';
+            document.querySelector('#heatmap .vch__days__labels__wrapper').style.display = 'none';
+            document.querySelector('#heatmap .vch__legend__wrapper').style.display = 'none';
+            document.querySelector('#heatmap .vch__year__wrapper').removeAttribute('transform')
+            document.querySelector('#heatmap').setAttribute('viewBox', '0 0 647 83');
+            svgElemToPngDataURL(document.querySelector('#heatmap')).then(dataURL => getGlobal('setHeatmap')(dataURL));
+        }, 100);
+    });
 }
 
 function autofillHashtag() {

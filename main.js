@@ -161,6 +161,26 @@ global.setHeatmap = function(dataURL) {
     item.icon = nativeImage.createFromDataURL(dataURL).resize({width: 250});
     item.visible = true;    
 }
+global.setTodos = function(todoArray) {
+    console.log('SETTING TODOS', todoArray);
+    var item = getContextMenuItemByMyId('remainingTasks');
+    var submenuHeader = [
+        { label: 'Click on a to-do to mark it as done', enabled: false },
+        { type: 'separator' }
+    ];
+    item.submenu = submenuHeader.concat(todoArray.map(todo => ({
+        myId: `todo-${todo.id}`,
+        label: ` ${todo.content}`,
+        icon: nativeImage.createFromPath('./todo.png').resize({width:15,height:15}),
+        click: (menuItem) => {
+            console.log('MENUITEM', menuItem);
+            markTodoAsDone(menuItem.myId.replace(/todo-/g, ''));
+            var parent = getContextMenuItemByMyId('remainingTasks');
+            parent.submenu.splice(parent.submenu.map(item => item.myId).indexOf(menuItem.myId), 1);
+        }
+    })));
+    item.visible = true;    
+}
 
 var globalUsername = '';
 
@@ -191,6 +211,10 @@ var contextMenuTemplate = [
     { label: `View keyboard shortcuts`, accelerator: `CmdOrCtrl+K`, click: () => global.openExternalURL('https://menubar.getmakerlog.com/keyboard-shortcuts') },
     { label: `Quit`, accelerator: `CmdOrCtrl+Q`, click: () => app.quit() }
 ];
+
+function markTodoAsDone(todoId) {
+    mb.window.webContents.send('markTodoAsDone', todoId);
+}
 
 app.on('ready', function ready () {
     console.log('app is ready')
