@@ -4,6 +4,7 @@
 // the remote web app will not have access, so this is safe
 const { ipcRenderer, ipc, remote } = require('electron');
 const storage = require('electron-json-storage');
+const ReconnectingWebSocket = require('rws').ReconnectingWebSocket;
 
 init();
 
@@ -18,6 +19,7 @@ function init() {
   window.Bridge = {
       getGlobal: remote.getGlobal,
       ipcRenderer: ipcRenderer,
+      ReconnectingWebSocket: ReconnectingWebSocket,
       storage: {
           get: storage.get,
           getMany: storage.getMany,

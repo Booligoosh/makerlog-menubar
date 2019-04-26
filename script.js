@@ -7,6 +7,7 @@ if(typeof require !== 'undefined') {
 } else {
     var getGlobal = window.Bridge.getGlobal;
     var ipcRenderer = window.Bridge.ipcRenderer;
+    var ReconnectingWebSocket = window.Bridge.ReconnectingWebSocket;
     var storage = window.Bridge.storage;
     var openExternalURL = getGlobal('openExternalURL');
 }
@@ -21,6 +22,9 @@ var refreshToken;
 var doneToday = 0;
 var streak = 0;
 var userId = 0;
+var lastSyncedDateString = '0';
+var todos = [];
+var socket;
 
 if(typeof tokenStore === 'undefined') {
     login();
@@ -287,6 +291,9 @@ function fetchHashtags() {
             }).then(dataURL => getGlobal('setUser')(r.username, dataURL));
         });
         
+        if (ReconnectingWebSocket) {
+            subscribeToWebSocket();
+        }
         getTodos();
         getHeatmap();
         
@@ -327,11 +334,76 @@ function fetchHashtags() {
     })
 }
 
-function getTodos() {
-    myFetch(`https://api.getmakerlog.com/tasks/?user=${userId}&done=false`).then(r => {
+function getTodos(nextURL = null) {
+    myFetch(nextURL ? nextURL : `https://api.getmakerlog.com/tasks/?user=${userId}&done=false`).then(r => {
         console.log('TODOS', r);
-        getGlobal('setTodos')(r.results);
+
+        todos = todos.concat(r.results);
+        getGlobal('setTodos')(todos);
+
+        if (todos.length > 0) {
+            lastSyncedDateString = todos[0].updated_at;
+        }
+
+        if (r.next) {
+            return getTodos(r.next);
+        }
     });
+}
+
+function syncTodos() {
+    myFetch(`https://api.getmakerlog.com/tasks/sync?done=false&last_sync_date=${lastSyncedDateString}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }).then(r => {
+        console.log('SYNCED TODOS', r);
+        lastSyncedDateString = r.sync_date;
+        todos = r.data.concat(todos).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+        getGlobal('setTodos')(todos);
+    })
+}
+
+//setInterval(syncTodos, 1000);
+
+function subscribeToWebSocket() {
+    socket = new ReconnectingWebSocket(`wss://api.getmakerlog.com/users/${userId}/stream`);
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log(`Makerlog: Event received through WS. (${data.type})`, data.payload)
+        switch(data.type) {
+            case 'task.created':
+            case 'task.updated':
+            case 'task.sync':
+                let tasks = data.batch ? data.batch : [data.payload]; // Sometimes the API sends batch data to save bandwidth. Prepare for payload to be an array.
+                console.log("Tasks created/updated/synced", tasks)
+                
+                todos = tasks.filter(task => task.done === false).concat(todos).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                lastSyncedDateString = todos[0].updated_at;
+                getGlobal('setTodos')(todos);
+
+                break;
+
+            case 'task.deleted':
+                console.log("Task deleted", data.payload)
+
+                if (todos.map(t => t.id).includes(data.payload.id)) {
+                    todos.splice(todos.map(t => t.id).indexOf(data.payload.id), 1);
+                    getGlobal('setTodos')(todos);
+                }
+
+                break;
+
+            default:
+                console.log("Other event", data.payload)
+                return;
+        }
+    }
+
+    socket.onreconnect = (event) => {
+        console.log('SOCKET RECONNECT', event)
+        syncTodos();
+    }
 }
 
 function getHeatmap() {

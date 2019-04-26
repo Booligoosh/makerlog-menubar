@@ -9,6 +9,7 @@
     "dependencies": {
         "dotenv": "^7.0.0",
         "electron-json-storage": "^4.1.6",
+        "rws": "0.0.1",
         "yarn": "^1.15.2"
     },
     "devDependencies": {
