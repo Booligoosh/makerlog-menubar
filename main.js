@@ -20,6 +20,9 @@ const timePickerURL = process.env['MAKERLOG_MENUBAR_CONTEXT'] == 'DEV' ? `file:/
 
 const { autoUpdater } = require('electron-updater') // https://www.electron.build/auto-update
 autoUpdater.checkForUpdatesAndNotify()
+autoUpdater.on('update-downloaded', info => {
+    autoUpdater.quitAndInstall()
+})
 
 global.fontSize = 16*1.5;
 
