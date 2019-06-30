@@ -1,6 +1,6 @@
 {
     "name": "makerlog-menubar",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "description": "A menubar app for Makerlog",
     "author": {
         "name": "Ethan",
@@ -35,11 +35,11 @@
             "category": "public.app-category.productivity",
             "target": [
                 "dmg",
-                "tar.gz"
+                "tar.gz",
+                "zip"
             ],
             "darkModeSupport": true,
-            "icon": "Icon.icns",
-            "publish": ["github"]
+            "icon": "Icon.icns"
         },
         "win": {
             "target": [
