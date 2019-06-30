@@ -16,6 +16,8 @@ const storage = require('electron-json-storage');
 const indexURL = process.env['MAKERLOG_MENUBAR_CONTEXT'] == 'DEV' ? `file://${__dirname}/index.html` : 'https://makerlog-menubar-app.netlify.com';
 const timePickerURL = process.env['MAKERLOG_MENUBAR_CONTEXT'] == 'DEV' ? `file://${__dirname}/timepicker.html` : 'https://makerlog-menubar-app.netlify.com/timepicker';
 
+require('update-electron-app')() // https://electronjs.org/docs/tutorial/updates#using-updateelectronjsorg
+
 global.fontSize = 16*1.5;
 
 if (process.platform == "darwin") {
