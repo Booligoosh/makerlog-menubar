@@ -1,6 +1,6 @@
 {
     "name": "makerlog-menubar",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "A menubar app for Makerlog",
     "author": {
         "name": "Ethan",
@@ -13,8 +13,8 @@
     "dependencies": {
         "dotenv": "^7.0.0",
         "electron-json-storage": "^4.1.6",
+        "electron-updater": "^4.0.14",
         "rws": "0.0.1",
-        "update-electron-app": "^1.3.0",
         "yarn": "^1.15.2"
     },
     "devDependencies": {
