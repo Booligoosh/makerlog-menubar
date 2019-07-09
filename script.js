@@ -300,8 +300,6 @@ function fetchHashtags() {
         return myFetch(`https://api.getmakerlog.com/users/${r.id}/stats/`)
     })
     .then(r => {
-        data.hashtags = r.tasks_per_project.labels.filter(label => label != 'No project').sort((a,b) => r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(b)] - r.tasks_per_project.datasets[0].data[r.tasks_per_project.labels.indexOf(a)]);
-        
         console.log('STATS', r);
         streak = r.streak;
         getGlobal('setStreak')(streak);
@@ -330,7 +328,18 @@ function fetchHashtags() {
                 }
 
             }
-        });
+        })
+
+        return myFetch(`https://api.getmakerlog.com/projects/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    })
+    .then(r => {
+        console.log('PROJECTS', r)
+        data.hashtags = r.map(project => project.name);
     })
 }
 
@@ -451,7 +460,7 @@ function login() {
     storeAppHref(window.location.href);
     getGlobal('goFullscreen')();
 
-    window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write&response_type=code`;
+    window.location = `https://api.getmakerlog.com/oauth/authorize/?client_id=${client_id}&scope=user:read%20tasks:write%20projects:read&response_type=code`;
 }
 
 function refreshMakerlogToken(notify = false) {
@@ -523,9 +532,13 @@ function svgElemToPngDataURL(svg) {
 
 function myFetch(input,init = {}) {
     return fetch(input,init)
-    .then(r => {
+    .then(async r => {
         if(r.status === 403) {
-            if(new URL(r.url).host.includes('getmakerlog')) { // NOT SECURE for validating but fine here
+            let json = await r.json()
+            if (json && json.detail === `You do not have permission to perform this action.`) {
+                // Wrong scopes
+                login()
+            } else if (new URL(r.url).host.includes('getmakerlog')) { // NOT SECURE for validating but fine here
                 // Makerlog credentials timed out
                 refreshMakerlogToken(true);
             }
