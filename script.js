@@ -465,7 +465,7 @@ function login() {
 
 function refreshMakerlogToken(notify = false) {
     if(typeof refreshToken !== 'undefined' && refreshToken.length > 0) {
-        return fetch('https://makerlog-menubar-cloud-functions.netlify.com/.netlify/functions/refreshMakerlogToken', {
+        return fetch('https://makerlog-menubar-cloud-functions.netlify.app/.netlify/functions/refreshMakerlogToken', {
             method: 'POST',
             body: JSON.stringify({refresh_token: refreshToken})
         }).then(r => r.json()).then(r => {
